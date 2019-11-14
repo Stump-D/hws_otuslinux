@@ -56,7 +56,7 @@ cat /proc/mdstat
 mdadm -D /dev/md0
 ```
 
-5. Создали GPT раздел и 5 партиций и смонтировать их на ФС с модификацей /etc/fstab
+5. Создали GPT раздел и 5 партиций и смонтировали их на ФС с одновременной модификацей /etc/fstab
 ```bash
 parted /dev/md0 mkpart primary ext4 80% 100%
 for i in $(seq 1 5); do sudo mkfs.ext4 /dev/md0p$i; done
