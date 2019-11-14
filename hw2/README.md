@@ -16,3 +16,27 @@
 
 ## **Выполнено**
 
+sudo lshw -short | grep disk
+sudo mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
+sudo mdadm --create --verbose /dev/md0 -l 6 -n 5 /dev/sd{b,c,d,e,f}
+cat /proc/mdstat
+sudo mdadm -D /dev/md0
+sudo mkdir /etc/mdadm
+sudo  mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' | sudo tee /etc/mdadm/mdadm.conf
+
+
+
+[vagrant@otuslinuxhw2 ~]$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   40G  0 disk
+`-sda1   8:1    0   40G  0 part /
+sdb      8:16   0  250M  0 disk
+sdc      8:32   0  250M  0 disk
+sdd      8:48   0  250M  0 disk
+sde      8:64   0  250M  0 disk
+sdf      8:80   0  250M  0 disk
+
+
+
+ 
+
