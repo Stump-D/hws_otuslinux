@@ -15,7 +15,7 @@
 
 ## **Выполнено**
 
-1. Добавили в Vagrantfile еце дисков
+1. Добавили в Vagrantfile еце дисков в секцию  :disks => {...}
 ```ruby
  :sata5 => {
          :dfile => './sata5.vdi',
