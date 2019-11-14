@@ -1,5 +1,4 @@
 # **Домашнее задание №2: работа с mdadm**
-**Цель:** Получить навыки работы с Git, Vagrant, Packer и публикацией готовых образов в Vagrant Cloud.
 
 ## **Задание:**
 - добавить в Vagrantfile еце дисков
@@ -16,27 +15,70 @@
 
 ## **Выполнено**
 
+1. Добавили в Vagrantfile еце дисков
+```ruby
+ :sata5 => {
+         :dfile => './sata5.vdi',
+         :size => 250, # Megabytes
+         :port => 5
+ }
+```
+
+2. Собрали R10
+```bash
 sudo lshw -short | grep disk
-sudo mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
-sudo mdadm --create --verbose /dev/md0 -l 6 -n 5 /dev/sd{b,c,d,e,f}
+sudo fdisk -l
+mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
+mdadm --create --verbose /dev/md0 --level 10 --raid-devices=4 /dev/sd{b,c,d,e} --spare-devices=1 /dev/sdf
+```
+3. Прописали собранный рейд в конф, чтобы рейд собирался при загрузке:
+```bash
+mkdir /etc/mdadm
+mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' | tee /etc/mdadm/mdadm.conf
+```
+
+4. Сломали/починили raid (1 диск в raid и hot spare)
+```bash
+mdadm /dev/md0 --fail /dev/sdd# "ломаем" обычный диск
 cat /proc/mdstat
-sudo mdadm -D /dev/md0
-sudo mkdir /etc/mdadm
-sudo  mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' | sudo tee /etc/mdadm/mdadm.conf
+mdadm -D /dev/md0# видим, что включается hot spare
+mdadm /dev/md0 --remove /dev/sdd
+mdadm /dev/md0 --add /dev/sdd
+cat /proc/mdstat
+mdadm -D /dev/md0
 
+mdadm /dev/md0 --fail /dev/sdf# "ломаем" диск hot spare
+cat /proc/mdstat
+mdadm -D /dev/md0
+mdadm /dev/md0 --remove /dev/sdf
+mdadm /dev/md0 --add /dev/sdf
+cat /proc/mdstat
+mdadm -D /dev/md0
+```
 
-
-[vagrant@otuslinuxhw2 ~]$ lsblk
-NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-sda      8:0    0   40G  0 disk
-`-sda1   8:1    0   40G  0 part /
-sdb      8:16   0  250M  0 disk
-sdc      8:32   0  250M  0 disk
-sdd      8:48   0  250M  0 disk
-sde      8:64   0  250M  0 disk
-sdf      8:80   0  250M  0 disk
-
-
-
- 
-
+5. Создали GPT раздел и 5 партиций и смонтировать их на ФС с модификацей /etc/fstab
+```bash
+parted /dev/md0 mkpart primary ext4 80% 100%
+for i in $(seq 1 5); do sudo mkfs.ext4 /dev/md0p$i; done
+mkdir -p /raid/part{1,2,3,4,5}
+for i in $(seq 1 5); do mount /dev/md0p$i /raid/part$i; echo UUID=$(blkid -o value -s UUID /dev/md0p$i) /raid/part$i ext4 defaults 0 2 >> /etc/fstab; done
+```
+                                           
+6. Добавили в Vagrantfile в секцию  box.vm.provision скрмпт, который сразу собирает систему с подключенным рейдом
+`````ruby
+ box.vm.provision "shell", inline: <<-SHELL
+              mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
+              mdadm --create --verbose /dev/md0 --level 10 --raid-devices=4 /dev/sd{b,c,d,e} --spare-devices=1 /dev/sdf
+              mkdir /etc/mdadm
+              mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' | tee /etc/mdadm/mdadm.conf
+              parted -s /dev/md0 mklabel gpt
+              parted /dev/md0 mkpart primary ext4 0% 20%
+              parted /dev/md0 mkpart primary ext4 20% 40%
+              parted /dev/md0 mkpart primary ext4 40% 60%
+              parted /dev/md0 mkpart primary ext4 60% 80%
+              parted /dev/md0 mkpart primary ext4 80% 100%
+              for i in $(seq 1 5); do sudo mkfs.ext4 /dev/md0p$i; done
+              mkdir -p /raid/part{1,2,3,4,5}
+              for i in $(seq 1 5); do mount /dev/md0p$i /raid/part$i; echo UUID=$(blkid -o value -s UUID /dev/md0p$i) /raid/part$i ext4 defaults 0 2 >> /etc/fstab; done
+          SHELL
+```
