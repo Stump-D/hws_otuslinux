@@ -64,7 +64,7 @@ mkdir -p /raid/part{1,2,3,4,5}
 for i in $(seq 1 5); do mount /dev/md0p$i /raid/part$i; echo UUID=$(blkid -o value -s UUID /dev/md0p$i) /raid/part$i ext4 defaults 0 2 >> /etc/fstab; done
 ```
                                            
-6. Добавили в Vagrantfile в секцию  box.vm.provision скрмпт, который сразу собирает систему с подключенным рейдом
+6. Добавили в Vagrantfile в секцию  box.vm.provision скрипт, который сразу собирает систему с подключенным рейдом
 `````ruby
  box.vm.provision "shell", inline: <<-SHELL
               mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
