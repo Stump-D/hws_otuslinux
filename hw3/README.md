@@ -21,7 +21,7 @@
 
 ## **Выполнено:**
 
-1. Уменьшить том под / до 8G
+1. Уменьшили том под / до 8G
 ```bash
 yum install xfsdump -y
 pvcreate /dev/sdb
@@ -60,7 +60,7 @@ vgremove /dev/vg_root
 pvremove /dev/sdb
 ```
 
-2. Выделить том под /var, /var - сделать в mirror
+2. Выделили том под /var, /var - сделали в mirror
 ```bash
 pvcreate /dev/sdc /dev/sdd
 vgcreate vg_var /dev/sdc /dev/sdd
@@ -75,10 +75,10 @@ echo "`blkid | grep var: | awk '{print $2}'` /var ext4 defaults 0 0" >> /etc/fst
 
 ```
 
-3. Выделить том под /home, /home - сделать том для снэпшотов, сгенерить файлы в /home/
-- снять снэпшот
-- удалить часть файлов
-- восстановится со снэпшота
+3. Выделили том под /home, /home - сделали том для снэпшотов, сгенерили файлы в /home/
+- сняли снэпшот
+- удалили часть файлов
+- восстановились со снэпшота
 
 ```bash
 lvcreate -n LogVol_Home -L 2G /dev/VolGroup00
