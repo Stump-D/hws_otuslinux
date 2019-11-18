@@ -21,9 +21,9 @@
 
 ## **Выполнено:**
 
-1. Typescript
+1. [Протокол работы по основному заданию](typescript.main)
 
-2. 
+2. [Протокол работы по доп. заданию](typescript.star)
 
 pvcreate /dev/sdb
 vgcreate vg_opt /dev/sdb
