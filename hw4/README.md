@@ -27,10 +27,10 @@ PV необходимо инициализировать с параметром
     
 ![Screen 3](./jpg/1.3.jpg)
     
-    ```bash
+```bash
     mount -o remount,rw /
     mount | grep root
-    ```
+```
 
 #### Способ 2. Через initrd, rd.break.
     rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
