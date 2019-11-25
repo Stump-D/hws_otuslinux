@@ -31,6 +31,7 @@ PV необходимо инициализировать с параметром
 #### Способ 2. Через initrd, rd.break.
 rd.break -  даем инструкцию initrd  запустить sh перед pivot_root()
 ![Screen 2.1](./jpg/2.1.jpg)
+
 Попадаем в emergency mode
 ![Screen 2.2](./jpg/2.2.jpg)
 
