@@ -33,9 +33,9 @@ rd.break -  даем инструкцию initrd  запустить sh пере
 ![Screen 2.1](./jpg/2.1.jpg)
 
 Попадаем в emergency mode
-
 ![Screen 2.2](./jpg/2.2.jpg)
 
+Выполняем:
 ```bash
 mount -o remount,rw /sysroot
 chroot /sysroot
@@ -47,5 +47,10 @@ touch /.autorelabel
 Создание .autorelabel сообщает SELinux о необходимости запуска в initrd процесса restorecon(восстановления контекста) при последующей перезагрузке.
 
 
-#### rw init=/sysroot/bin/sh
-    Аналогично 1.1
+#### Способо 3. rw init=/sysroot/bin/sh
+
+![Screen 3.1](./jpg/3.1.jpg)
+![Screen 3.2](./jpg/3.2.jpg)
+
+    
+
