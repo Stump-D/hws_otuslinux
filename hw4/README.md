@@ -31,7 +31,7 @@ mount -o remount,rw /
 mount | grep root
 ```
 
-    -Через initrd, rd.break.
+    - Через initrd, rd.break.
     rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
 
 
