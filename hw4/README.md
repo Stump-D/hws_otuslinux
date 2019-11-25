@@ -31,12 +31,12 @@ mount -o remount,rw /
 mount | grep root
 ```
 
-    2. Через initrd, rd.break.
+    1. Через initrd, rd.break.
     rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
 
 
 Создание .autorelabel запускает в initrd restorecon SELinux
 
 
-    3. rw init=/sysroot/bin/sh
+    1. rw init=/sysroot/bin/sh
     Аналогично 1.1
