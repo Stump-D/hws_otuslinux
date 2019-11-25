@@ -29,11 +29,14 @@ PV необходимо инициализировать с параметром
 ```
 
 #### Способ 2. Через initrd, rd.break.
-rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
+rd.break -  даем инструкцию initrd  запустить sh перед pivot_root()
+
+Попадаем в emergency mode
 ![Screen 2.1](./jpg/2.1.jpg)
 ![Screen 2.2](./jpg/2.2.jpg)
 ![Screen 2.3](./jpg/2.3.jpg)
-Создание .autorelabel запускает в initrd restorecon SELinux
+
+Создание .autorelabel запускает в initrd процесс restorecon (восстановления контекста) SELinux
 
 
 #### rw init=/sysroot/bin/sh
