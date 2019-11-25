@@ -54,8 +54,9 @@ touch /.autorelabel
 
 Наблюдаем, что в журнале /run/initramfs/rdsosreport.txt initrd не удалось запустить init=/sysroot/sysroot/bin/sh и система справедливо решила провалиться в Emergency Mode
 
+![Screen 3.2](./jpg/3.2.jpg)
 ![Screen 3.3](./jpg/3.3.jpg)
 
-![Screen 3.2](./jpg/3.2.jpg)
+
     
 
