@@ -18,24 +18,24 @@ PV необходимо инициализировать с параметром
     1. Способ 1. init=/bin/sh
 
 В конце строки начинающейся с linux16 добавляем init=/bin/sh и нажимаем сtrl-x для
-    загрузки в систему, т.е. сообщаем ядру запустить /bin/sh как первый процесс с PID=1.
+загрузки в систему, т.е. сообщаем ядру запустить /bin/sh как первый процесс с PID=1.
     
-    ![Способ 1](1.1.jpg)
+![Способ 1](1.1.jpg)
     
-    ![Способ 2](1.2.jpg)
+![Способ 2](1.2.jpg)
     
-    ![Способ 3](1.3.jpg)
+![Способ 3](1.3.jpg)
     
-    '''bash
-    mount -o remount,rw /
-    mount | grep root
-    '''
+'''bash
+mount -o remount,rw /
+mount | grep root
+'''
 
     2. Через initrd, rd.break.
     rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
 
 
-    Создание .autorelabel запускает в initrd restorecon SELinux
+Создание .autorelabel запускает в initrd restorecon SELinux
 
 
     3. rw init=/sysroot/bin/sh
