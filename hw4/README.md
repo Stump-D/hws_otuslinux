@@ -29,7 +29,7 @@ PV необходимо инициализировать с параметром
 ```
 
 #### Способ 2. Через initrd, rd.break.
-rd.break -  даем инструкцию initrd  запустить sh перед pivot_root()
+rd.break -  даем инструкцию initrd запустить emergency mode и sh перед pivot_root()
 ![Screen 2.1](./jpg/2.1.jpg)
 
 Попадаем в emergency mode
@@ -51,6 +51,10 @@ touch /.autorelabel
 #### Способо 3. rw init=/sysroot/bin/sh
 
 ![Screen 3.1](./jpg/3.1.jpg)
+![Screen 3.2](./jpg/3.2.jpg)
+
+Наблюдаем, что в журнале /run/initramfs/rdsosreport.txt не удалось запустить init=/sysroot/sysroot/bin/sh и система справедливо решила провалиться в Emergency Mode
+
 ![Screen 3.2](./jpg/3.2.jpg)
 
     
