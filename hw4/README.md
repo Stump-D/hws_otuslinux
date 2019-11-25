@@ -33,6 +33,7 @@ rd.break -  даем инструкцию initrd  запустить sh пере
 ![Screen 2.1](./jpg/2.1.jpg)
 
 Попадаем в emergency mode
+
 ![Screen 2.2](./jpg/2.2.jpg)
 
 ```bash
