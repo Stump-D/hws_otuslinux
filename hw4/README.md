@@ -17,18 +17,18 @@ PV необходимо инициализировать с параметром
 
     1. Способ 1. init=/bin/sh
 
-    In Unix-like systems, init is the first process to be run, and the
-    ultimate ancestor of all processes ever run. It's responsible for
-    running all the init scripts.
+![Способ 1](1.1.jpg)
 
-    You're telling the Linux kernel to run /bin/bash as init, rather than
-    the system init. This means *nothing* else is running: bash doesn't know
-    it has to start anything. bash won't do a number of other init-type
-    things either, so don't expect everything to work.
+    В конце строки начинающейся с linux16 добавляем init=/bin/sh и нажимаем сtrl-x для
+    загрузки в систему, т.е. сообщаем ядру запустить /bin/sh как первый процесс с PID=1.
 
+    mount -o remount,rw /
+    mount | grep root
 
     2. Через initrd, rd.break.
     rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
+
+
     Создание .autorelabel запускает в initrd restorecon SELinux
 
 
