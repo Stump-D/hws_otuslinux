@@ -15,28 +15,28 @@ PV необходимо инициализировать с параметром
 ## **Выполнено:**
 1. Попадаем в систему без пароля несколькими способами:
 
-    1. Способ 1. init=/bin/sh
+    - Способ 1. init=/bin/sh
 
 В конце строки начинающейся с linux16 добавляем init=/bin/sh и нажимаем сtrl-x для
 загрузки в систему, т.е. сообщаем ядру запустить /bin/sh как первый процесс с PID=1.
     
-![Способ 1](./jpg/1.1.jpg)
+![Screen 1](./jpg/1.1.jpg)
     
-![Способ 2](./jpg/1.2.jpg)
+![Screen 2](./jpg/1.2.jpg)
     
-![Способ 3](./jpg/1.3.jpg)
+![Screen 3](./jpg/1.3.jpg)
     
 ```bash
 mount -o remount,rw /
 mount | grep root
 ```
 
-    1. Через initrd, rd.break.
+    -Через initrd, rd.break.
     rd.break -  даем инстукцию initrd  запустить sh перед pivot_root()
 
 
 Создание .autorelabel запускает в initrd restorecon SELinux
 
 
-    1. rw init=/sysroot/bin/sh
+    - rw init=/sysroot/bin/sh
     Аналогично 1.1
