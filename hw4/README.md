@@ -51,11 +51,11 @@ touch /.autorelabel
 #### Способ 3. rw init=/sysroot/bin/sh
 
 ![Screen 3.1](./jpg/3.1.jpg)
-![Screen 3.2](./jpg/3.2.jpg)
 
-Наблюдаем, что в журнале /run/initramfs/rdsosreport.txt не удалось запустить init=/sysroot/sysroot/bin/sh и система справедливо решила провалиться в Emergency Mode
+Наблюдаем, что в журнале /run/initramfs/rdsosreport.txt initrd не удалось запустить init=/sysroot/sysroot/bin/sh и система справедливо решила провалиться в Emergency Mode
 
 ![Screen 3.3](./jpg/3.3.jpg)
 
+![Screen 3.2](./jpg/3.2.jpg)
     
 
