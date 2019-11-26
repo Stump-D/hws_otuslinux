@@ -23,6 +23,7 @@ PV необходимо инициализировать с параметром
 ![Screen 1.2](./jpg/1.2.jpg)
 ![Screen 1.3](./jpg/1.3.jpg)
     
+Перемонтируем корневую систему в режиме Read-Write с проверкой
 ```bash
     mount -o remount,rw /
     mount | grep root
@@ -52,11 +53,15 @@ touch /.autorelabel
 
 ![Screen 3.1](./jpg/3.1.jpg)
 
-Наблюдаем, что в журнале /run/initramfs/rdsosreport.txt initrd не удалось запустить init=/sysroot/sysroot/bin/sh и система справедливо решила провалиться в Emergency Mode
+Наблюдаем в журнале /run/initramfs/rdsosreport.txt, что initrd не удалось запустить init=/sysroot/sysroot/bin/sh и система справедливо решила провалиться в Emergency Mode
 
 ![Screen 3.2](./jpg/3.2.jpg)
 ![Screen 3.3](./jpg/3.3.jpg)
 
 
-    
+### 2. Установливаем систему с LVM, после чего переименовываем VG
 
+Смотрим текущее состояние системы:
+![Screen 22.1](./jpg/22.1.jpg)
+![Screen 22.2](./jpg/22.2.jpg)
+![Screen 22.3](./jpg/22.3.jpg)
