@@ -66,6 +66,5 @@ touch /.autorelabel
 
 Правим [/etc/fstab](txt/fstab), [/etc/default/grub](txt/grub), (/boot/grub2/grub.cfg)[txt.grub.cfg]
 
-
 ![Screen 22.2](./jpg/22.2.jpg)
 ![Screen 22.3](./jpg/22.3.jpg)
