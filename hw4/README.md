@@ -99,6 +99,10 @@ lsinitrd -m /boot/initramfs-$(uname -r).img | grep test
  
 ![Screen 33.1](./jpg/33.1.jpg)
 
+Перегружаемся и руками выключаем опции rghb и quiet чтобы увидеть вывод
+
 ![Screen 33.2](./jpg/33.2.jpg)
+
+Результат работы test.sh
 
 ![Screen 33.3](./jpg/33.3.jpg)
