@@ -66,5 +66,11 @@ touch /.autorelabel
 
 Правим [/etc/fstab](txt/fstab), [/etc/default/grub](txt/grub), [/boot/grub2/grub.cfg](txt/grub.cfg)
 
+Пересоздаем initrd image, чтобý он знал новое название Volume Group
+```bash
+mkinitrd -f -v /boot/initramfs-$(uname -r).img $(uname -r)
+```
 ![Screen 22.2](./jpg/22.2.jpg)
+
+Перегружаемся и проверяем:
 ![Screen 22.3](./jpg/22.3.jpg)
