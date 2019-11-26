@@ -1,0 +1,12 @@
+
+#
+# /etc/fstab
+# Created by anaconda on Mon Feb  4 19:29:02 2019
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/UrdrwRoot-root /                       xfs     defaults        0 0
+UUID=b9da5640-4a82-4483-8762-3484b55248c6 /boot                   xfs     defaults        0 0
+/dev/mapper/UrdrwRoot-swap swap                    swap    defaults        0 0
+/dev/DATA_BKP_VG/DATA_BKP_01_LV /mnt/urbkpiscsi btrfs _netdev,rw 0 0
