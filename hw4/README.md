@@ -103,6 +103,6 @@ lsinitrd -m /boot/initramfs-$(uname -r).img | grep test
 
 ![Screen 33.2](./jpg/33.2.jpg)
 
-Результат работы test.sh
+Результат работы [test.sh](test.sh)
 
 ![Screen 33.3](./jpg/33.3.jpg)
