@@ -107,11 +107,68 @@
     systemctl start spawn-fcgi
     ```
                                                                                          
-    
-    
-
-```bash
-sudo tail -f /var/log/messages
-sudo systemctl status spawn-fcgi
-sudo ss -tnulp | grep httpd
-```
+3. Дополнить юнит-файл apache httpd возможностьб запустить несколько инстансов сервера с разными конфигами
+    1.Для запуска нескольких экземпляров сервиса будем использовать шаблон httpd@ в конфигурации файла окружений:
+    ```
+    cat /etc/systemd/system/httpd@.service
+    [Unit]
+    Description=The Apache HTTP Server
+    After=network.target remote-fs.target nss-lookup.target
+    Documentation=man:httpd(8)
+    Documentation=man:apachectl(8)
+    [Service]
+    Type=notify
+    EnvironmentFile=/etc/sysconfig/httpd-%I #добавим параметр %I сюда
+    ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+    ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+    ExecStop=/bin/kill -WINCH ${MAINPID}
+    KillSignal=SIGCONT
+    PrivateTmp=true
+    [Install]
+    WantedBy=multi-user.target
+    ```
+    2. Создаем два файла окружения в /etc/sysconfig:
+    ```
+    # /etc/sysconfig/httpd-first
+    OPTIONS=-f conf/first.conf
+    # /etc/sysconfig/httpd-second
+    OPTIONS=-f conf/second.conf
+    ```
+    3. Создаем два файла конфигурации в /etc/httpd/conf:
+    ```
+    cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/first.conf
+    cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/second.conf
+    ```
+    4. Правим второй файл конфигурации second.conf для исключения пересечения по портам и PidFiles.
+    ```
+    PidFile /var/run/httpd-second.pid
+    Listen 8080
+    ```
+    5. Запускаем и проверяем:
+    ```
+    systemctl start httpd@first
+    systemctl start httpd@second
+    systemctl status httpd@first
+    systemctl status httpd@second
+    sudo ss -tnulp | grep httpd
+    ```
+                  
+    Соответствующая секция в Vagrant shell provisioner выглядит следующим образом:
+    ```
+    ######################################
+    #3. double httpd service installation#
+    ######################################
+    cp /usr/lib/systemd/system/httpd.service /etc/systemd/system/httpd@.service
+    sed -i 's!EnvironmentFile=/etc/sysconfig/httpd!EnvironmentFile=/etc/sysconfig/httpd-%I!' /etc/systemd/system/httpd@.service
+    cp /etc/sysconfig/httpd /etc/sysconfig/httpd-first
+    cp /etc/sysconfig/httpd /etc/sysconfig/httpd-second
+    sed -i 's!#OPTIONS=!OPTIONS=-f conf/first.conf!' /etc/sysconfig/httpd-first
+    sed -i 's!#OPTIONS=!OPTIONS=-f conf/second.conf!' /etc/sysconfig/httpd-second
+    cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/first.conf
+    cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/second.conf
+    sed -i 's!Listen 80!Listen 8080!' /etc/httpd/conf/second.conf
+    echo 'PidFile     /var/run/httpd/httpd-second.pid' >> /etc/httpd/conf/second.conf
+    systemctl start httpd@first
+    systemctl start httpd@second
+    ```
+                                                                                                                                                                                                         
