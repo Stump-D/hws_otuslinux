@@ -13,51 +13,54 @@
 1. Создание сервиса, который будет раз в 30 секунд мониторить лог на предмет наличия ключевого слова. Файл и слово должны задаваться в /etc/sysconfig
 
     1. Создаем файд [/etc/sysconfig/watchlog](watchlog)
-    1. Cоздаем тестовый /var/log/watchlog.log
+    2. Cоздаем тестовый /var/log/watchlog.log
     ```bash
     echo `date` > /var/log/watchlog.log
     echo 'ALERT' >> /var/log/watchlog.log
     ```
-    1. Создаем скрипт [/opt/watchlog.sh](watchlog.sh)
-    1. Создаем юнит для сервис [/etc/systemd/system/watchlog.service](watchlog.service)
-    1. Создаем юнить для таймера [/etc/systemd/system/watchlog.timer](watchlog.timer)
-    1. Разрешаем запуск таймера 
+    3. Создаем скрипт [/opt/watchlog.sh](watchlog.sh)
+    4. Создаем юнит для сервис [/etc/systemd/system/watchlog.service](watchlog.service)
+    5. Создаем юнить для таймера [/etc/systemd/system/watchlog.timer](watchlog.timer)
+    6. Разрешаем запуск таймера 
     ```
     systemctl enable watchlog.timer
     ```
-    1. Запускаем таймер.
+    7. Запускаем таймер.
     ```
     systemctl start watchlog.timer
     ```
-    1. Стартуем для начала отчета сам сервис.
+    8. Стартуем для начала отчета сам сервис.
     ```
     systemctl start watchlog.service
     ```
-    1. Проверяем в syslog.
+    9. Проверяем работу сервиса в syslog.
     ```
     sudo tail -f /var/log/messages
     ```
 
-Соответствующая секция в Vagrant shell provisioner выглядит следующим образом:
+    Соответствующая секция в Vagrant shell provisioner выглядит следующим образом:
 
-```bash
-#########################################
-#1.watchlog service & timer installation#
-#########################################
-wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog -O /etc/sysconfig/watchlog
+    ```bash
+    #########################################
+    #1.watchlog service & timer installation#
+    #########################################
+    wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog -O /etc/sysconfig/watchlog
 
-echo `date` > /var/log/watchlog.log
-echo 'ALERT' >> /var/log/watchlog.log
+    echo `date` > /var/log/watchlog.log
+    echo 'ALERT' >> /var/log/watchlog.log
 
-wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog.sh -O /opt/watchlog.sh
-chmod +x /opt/watchlog.sh
-wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog.service -O /etc/systemd/system/watchlog.service
-wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog.timer -O /etc/systemd/system/watchlog.timer
+    wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog.sh -O /opt/watchlog.sh
+    chmod +x /opt/watchlog.sh
+    wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog.service -O /etc/systemd/system/watchlog.service
+    wget https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw5/watchlog.timer -O /etc/systemd/system/watchlog.timer
 
-systemctl enable watchlog.timer
-systemctl start watchlog.timer
-systemctl start watchlog.service
-```
+    systemctl enable watchlog.timer
+    systemctl start watchlog.timer
+    systemctl start watchlog.service
+    ```
+
+
+
 
 ```bash
 sudo tail -f /var/log/messages
