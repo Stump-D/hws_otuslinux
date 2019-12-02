@@ -39,7 +39,75 @@ Vagrant.configure("2") do |config|
  	  box.vm.provision "shell", inline: <<-SHELL
 	      mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
-	      yum install -y mdadm smartmontools hdparm gdisk
+	      yum install -y mdadm smartmontools hdparm gdisk wget
+
+	            
+	      echo '# Configuration file for my watchlog service' > /etc/sysconfig/watchlog
+	      echo '# Place it to /etc/sysconfig' >> /etc/sysconfig/watchlog
+	      echo '' >> /etc/sysconfig/watchlog
+	      echo '# File and word in that file that we will be monit' >> /etc/sysconfig/watchlog
+	      echo '' >> /etc/sysconfig/watchlog
+	      echo 'WORD="ALERT"' >> /etc/sysconfig/watchlog
+	      echo 'LOG=/var/log/watchlog.log' >> /etc/sysconfig/watchlog
+	      
+	      echo `date` > /var/log/watchlog.log
+	      echo 'ALERT' >> /var/log/watchlog.log
+
+	      echo '#!/bin/bash' > /opt/watchlog.sh
+	      echo '' >> /opt/watchlog.sh
+	      echo 'WORD=$1' >> /opt/watchlog.sh
+	      echo 'LOG=$2' >> /opt/watchlog.sh
+	      echo 'DATE=`date`' >> /opt/watchlog.sh
+	      echo '' >> /opt/watchlog.sh
+	      echo 'if grep $WORD $LOG &> /dev/null' >> /opt/watchlog.sh
+	      echo 'then' >> /opt/watchlog.sh
+	      echo '  logger "$DATE: I found word, Master!"' >> /opt/watchlog.sh
+	      echo 'else' >> /opt/watchlog.sh
+	      echo '  exit 0' >> /opt/watchlog.sh
+	      echo 'fi' >> /opt/watchlog.sh
+	      chmod +x /opt/watchlog.sh
+
+
+	      echo '[Unit]' > /etc/systemd/system/watchlog.service
+	      echo 'Description=My watchlog service' >> /etc/systemd/system/watchlog.service
+	      echo '' >> /etc/systemd/system/watchlog.service
+	      echo '[Service]' >> /etc/systemd/system/watchlog.service
+	      echo 'Type=oneshot' >> /etc/systemd/system/watchlog.service
+	      echo 'EnvironmentFile=/etc/sysconfig/watchlog' >> /etc/systemd/system/watchlog.service
+	      echo 'ExecStart=/opt/watchlog.sh $WORD $LOG' >> /etc/systemd/system/watchlog.service
+
+	      echo '[Unit]' > /etc/systemd/system/watchlog.timer
+	      echo 'Description=Run watchlog script every 30 second' >> /etc/systemd/system/watchlog.timer
+	      echo '' >> /etc/systemd/system/watchlog.timer
+	      echo '[Timer]' >> /etc/systemd/system/watchlog.timer
+	      echo '# Run every 15 second' >> /etc/systemd/system/watchlog.timer
+	      echo 'OnUnitActiveSec=15' >> /etc/systemd/system/watchlog.timer
+	      echo 'Unit=watchlog.service' >> /etc/systemd/system/watchlog.timer
+	      echo '[Install]' >> /etc/systemd/system/watchlog.timer
+	      echo 'WantedBy=multi-user.target' >> /etc/systemd/system/watchlog.timer
+	      
+	      systemctl enable watchlog.timer
+	      systemctl start watchlog.timer
+	      systemctl start watchlog.service
+	      
+	      yum install epel-release -y && yum install spawn-fcgi php php-cli mod_fcgid httpd -y
+	      sed -i '7,8 s/#//g' /etc/sysconfig/spawn-fcgi
+	      echo '[Unit]' > /etc/systemd/system/spawn-fcgi.service
+	      echo 'Description=Spawn-fcgi startup service by Otus' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'After=network.target' >> /etc/systemd/system/spawn-fcgi.service
+	      echo '' >> /etc/systemd/system/spawn-fcgi.service
+	      echo '[Service]' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'Type=simple' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'PIDFile=/var/run/spawn-fcgi.pid' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'EnvironmentFile=/etc/sysconfig/spawn-fcgi' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'KillMode=process' >> /etc/systemd/system/spawn-fcgi.service
+	      echo '' >> /etc/systemd/system/spawn-fcgi.service
+	      echo '[Install]' >> /etc/systemd/system/spawn-fcgi.service
+	      echo 'WantedBy=multi-user.target' >> /etc/systemd/system/spawn-fcgi.service
+	      
+	      systemctl start spawn-fcgi
+	      
 	  SHELL
 
       end
