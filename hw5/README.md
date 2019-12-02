@@ -12,9 +12,33 @@
 
 1. Создание сервиса, который будет раз в 30 секунд мониторить лог на предмет наличия ключевого слова. Файл и слово должны задаваться в /etc/sysconfig
 
-1.1. Создаем файд [/etc/sysconfig/watchlog](watchlog)
+    1. Создаем файд [/etc/sysconfig/watchlog](watchlog)
+    1. Cоздаем /var/log/watchlog.log
+```bash
+echo `date` > /var/log/watchlog.log
+echo 'ALERT' >> /var/log/watchlog.log
+```
+    1. Создаем скрипт [/opt/watchlog.sh](watchlog.sh)
+    1. Создаем юнит для сервис [/etc/systemd/system/watchlog.service](watchlog.service)
+    1. Создаем юнить для таймера [/etc/systemd/system/watchlog.timer](watchlog.timer)
+    1. Разрешаем запуск таймера 
+    ```
+    systemctl enable watchlog.timer
+    ```
+    1. Запускаем таймер.
+    ```
+    systemctl start watchlog.timer
+    ```
+    1. Стартуем для начала отчета сам сервис.
+    ```
+    systemctl start watchlog.service
+    ```
+    1. Проверяем в syslog.
+    ```
+    sudo tail -f /var/log/messages
+    ```
 
-
+Соответствующая секция в Vagrant shell provisioner выглядит следующим образом:
 
 ```bash
 #########################################
