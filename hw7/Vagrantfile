@@ -50,9 +50,10 @@ Vagrant.configure("2") do |config|
 	      cd /root
 	      wget https://nginx.org/packages/centos/7/SRPMS/nginx-1.14.1-1.el7_4.ngx.src.rpm
 	      wget https://www.openssl.org/source/latest.tar.gz
+	      rpm -i nginx-1.14.1-1.el7_4.ngx.src.rpm
 	      tar -xvf latest.tar.gz
 	      yum-builddep rpmbuild/SPECS/nginx.spec -y
-	      wget -O rpmbuild/SPECS/nginx.spec https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw7/nginx.spec	
+	      wget -O rpmbuild/SPECS/nginx.spec https://raw.githubusercontent.com/Stump-D/hws_otuslinux/master/hw7/nginx.spec
 	      rpmbuild -bb rpmbuild/SPECS/nginx.spec
 	      yum localinstall -y rpmbuild/RPMS/x86_64/nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
 	      systemctl start nginx
