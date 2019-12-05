@@ -13,7 +13,7 @@
 
 ## **Выполнено: (для проверки достаточно использовать [Vagrantfile](Vagrantfile))**
 
-1. Создать свой RPM пакет (nginx c поддержкой openssl):
+***1. Создать свой RPM пакет (nginx c поддержкой openssl)***
 
     1. Установить необходимые пакеты
     ```
@@ -50,16 +50,24 @@
     --with-openssl=/root/openssl-1.1.1d
     ```
     По этой [ссылке](https://nginx.org/ru/docs/configure.html) можно посмотреть все доступные опции для сборки.
+    7. Собственно, запускаем процесс сборки самого пакета:
+    ```
+    rpmbuild -bb rpmbuild/SPECS/nginx.spec
+    ```
+    8. Проверяем:
+    ```
+    [root@otuslinuxhw7 ~]# sudo -s
+    [root@otuslinuxhw7 ~]# ll ~/rpmbuild/RPMS/x86_64/
+    total 4364
+    -rw-r--r--. 1 root root 1974420 дек  5 06:59 nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
+    -rw-r--r--. 1 root root 2488224 дек  5 06:59 nginx-debuginfo-1.14.1-1.el7_4.ngx.x86_64.rpm
+    ```
+    
     
     
 
 Результаты проверок:
 ```
-[root@otuslinuxhw7 ~]# sudo -s
-[root@otuslinuxhw7 ~]# ll ~/rpmbuild/RPMS/x86_64/
-total 4364
--rw-r--r--. 1 root root 1974420 дек  5 06:59 nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
--rw-r--r--. 1 root root 2488224 дек  5 06:59 nginx-debuginfo-1.14.1-1.el7_4.ngx.x86_64.rpm
 [root@otuslinuxhw7 ~]# systemctl status nginx
 ● nginx.service - nginx - high performance web server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
