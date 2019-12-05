@@ -96,7 +96,7 @@ wget http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-relea
 createrepo /usr/share/nginx/html/repo/
 ```
 - Для прозрачности настроим в NGINX доступ к листингу каталога:
-В location / в файле [/etc/nginx/conf.d/default.conf]{default.conf} добавим директиву autoindex on.
+В location / в файле [/etc/nginx/conf.d/default.conf](default.conf) добавим директиву autoindex on.
 В результате location будет выглядеть так:
 ```
 location / {
