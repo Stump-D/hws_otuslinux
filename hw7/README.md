@@ -17,7 +17,7 @@
 
     1. Установить необходимые пакеты
 
-    ```
+    ```bash
     yum install -y \
     redhat-lsb-core \
     wget \
