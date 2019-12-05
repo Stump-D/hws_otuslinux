@@ -14,7 +14,7 @@
 ## **Выполнено: (для проверки достаточно использовать [Vagrantfile](Vagrantfile))**
 
 ### **1.Создать свой RPM пакет (nginx c поддержкой openssl)**
-- Установить необходимые пакеты
+- Установим необходимые пакеты
 ```bash
 yum install -y \
 redhat-lsb-core \
@@ -25,43 +25,41 @@ createrepo \
 yum-utils \
 gcc
 ```
-
-    2. Загрузим SRPM пакет NGINX:
-    ```
-    wget https://nginx.org/packages/centos/7/SRPMS/nginx-1.14.1-1.el7_4.ngx.src.rpm
-    ```
-    3. Установим пакет. При установке такого пакета в домашней директории создается древо каталогов для
-    сборки:
-    ```
-    rpm -i nginx-1.14.1-1.el7_4.ngx.src.rpm
-    ```
-    4.  Скачиваем и разархивируем последний исходники для openssl:
-    ```
-    wget https://www.openssl.org/source/latest.tar.gz
-    tar -xvf latest.tar.gz
-    ```
-    5. Cтавим все зависимости чтобы в процессе сборки не было ошибок:
-    ```
-    yum-builddep rpmbuild/SPECS/nginx.spec
-    ```
-    6. Правим сам [spec](nginx.spec) файл чтобы NGINX собирался с необходимыми нам
-    опциями:
-    ```
-    --with-openssl=/root/openssl-1.1.1d
-    ```
-    По этой [ссылке](https://nginx.org/ru/docs/configure.html) можно посмотреть все доступные опции для сборки.
-    7. Собственно, запускаем процесс сборки самого пакета:
-    ```
-    rpmbuild -bb rpmbuild/SPECS/nginx.spec
-    ```
-    8. Проверяем результаты сборки:
-    ```
-    [root@otuslinuxhw7 ~]# sudo -s
-    [root@otuslinuxhw7 ~]# ll ~/rpmbuild/RPMS/x86_64/
-    total 4364
-    -rw-r--r--. 1 root root 1974420 дек  5 06:59 nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
-    -rw-r--r--. 1 root root 2488224 дек  5 06:59 nginx-debuginfo-1.14.1-1.el7_4.ngx.x86_64.rpm
-    ```
+- Загрузим SRPM пакет NGINX:
+```
+wget https://nginx.org/packages/centos/7/SRPMS/nginx-1.14.1-1.el7_4.ngx.src.rpm
+```
+- Установим SRC пакет. При установке такого пакета в домашней директории создается древо каталогов для
+сборки:
+```
+rpm -i nginx-1.14.1-1.el7_4.ngx.src.rpm
+```
+- Скачиваем и разархивируем последний исходник для openssl:
+```
+wget https://www.openssl.org/source/latest.tar.gz
+tar -xvf latest.tar.gz
+```
+- Cтавим все зависимости чтобы в процессе сборки не было ошибок:
+```
+yum-builddep rpmbuild/SPECS/nginx.spec
+```
+- Правим сам [spec](nginx.spec) файл чтобы NGINX собирался с необходимыми нам опциями:
+```
+--with-openssl=/root/openssl-1.1.1d
+```
+По этой [ссылке](https://nginx.org/ru/docs/configure.html) можно посмотреть все доступные опции для сборки.
+- Собственно, запускаем процесс сборки самого пакета:
+```
+rpmbuild -bb rpmbuild/SPECS/nginx.spec
+```
+- Проверяем результаты сборки:
+```
+[root@otuslinuxhw7 ~]# sudo -s
+[root@otuslinuxhw7 ~]# ll ~/rpmbuild/RPMS/x86_64/
+total 4364
+-rw-r--r--. 1 root root 1974420 дек  5 06:59 nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
+-rw-r--r--. 1 root root 2488224 дек  5 06:59 nginx-debuginfo-1.14.1-1.el7_4.ngx.x86_64.rpm
+```
     
     
     
