@@ -102,13 +102,16 @@ createrepo /usr/share/nginx/html/repo/
 location / {
 root /usr/share/nginx/html;
 index index.html index.htm;
-***autoindex on;***
+autoindex on;
 }
 ```
-
-
-
-
+- Проверяем синтаксис и перезапускаем NGINX:
+```
+nginx -t
+nginx -s reload
+```
+- Проверяем работу nginx
+```
 [root@otuslinuxhw7 ~]# curl -a http://localhost/repo/
 <html>
 <head><title>Index of /repo/</title></head>
@@ -119,7 +122,65 @@ index index.html index.htm;
 <a href="percona-release-0.1-6.noarch.rpm">percona-release-0.1-6.noarch.rpm</a>                   13-Jun-2018 06:34               14520
 </pre><hr></body>
 </html>
+````
+- Добавляем его в перечень локальных репозиториев:
+```
+cat >> /etc/yum.repos.d/otus.repo << EOF
+[otus]
+name=otus-linux
+baseurl=http://localhost/repo
+gpgcheck=0
+enabled=1
+EOF
+```
+
+- Проверяем:
+```
+yum repolist enabled | grep otus
 [root@otuslinuxhw7 ~]# yum list --showduplicates | grep otus
 nginx.x86_64                                1:1.14.1-1.el7_4.ngx       otus
 percona-release.noarch                      0.1-6                      otus
+```
+
+-Ставим percona-release из локального репозитория:
+```
+yum install percona-release -y
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: dedic.sh
+ * extras: dedic.sh
+ * updates: mirror.docker.ru
+Resolving Dependencies
+--> Running transaction check
+---> Package percona-release.noarch 0:0.1-6 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=====================================================================================================================================================================================================
+ Package                                                Arch                                          Version                                      Repository                                   Size
+=====================================================================================================================================================================================================
+Installing:
+ percona-release                                        noarch                                        0.1-6                                        otus                                         14 k
+
+Transaction Summary
+=====================================================================================================================================================================================================
+Install  1 Package
+
+Total download size: 14 k
+Installed size: 16 k
+Downloading packages:
+No Presto metadata available for otus
+percona-release-0.1-6.noarch.rpm                                                                                                                                              |  14 kB  00:00:00
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : percona-release-0.1-6.noarch                                                                                                                                                      1/1
+  Verifying  : percona-release-0.1-6.noarch                                                                                                                                                      1/1
+
+Installed:
+  percona-release.noarch 0:0.1-6
+
+Complete!
 ```
