@@ -62,11 +62,15 @@ total 4364
 ```
     
     
-    
-
-Результаты проверок:
+### **2.Создать свой репо и разместить там свой RPM**    
+- Устанавливаем nginx из собранного rpm в п.1
 ```
-[root@otuslinuxhw7 ~]# systemctl status nginx
+yum localinstall -y rpmbuild/RPMS/x86_64/nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
+```
+- Стартуем nginx и проверяем:
+```
+systemctl start nginx
+systemctl status nginx
 ● nginx.service - nginx - high performance web server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
    Active: active (running) since Чт 2019-12-05 06:59:03 UTC; 8h ago
@@ -80,14 +84,30 @@ total 4364
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: Starting nginx - high performance web server...
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: PID file /var/run/nginx.pid not readable (yet?) after start.
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: Started nginx - high performance web server.
-[root@otuslinuxhw7 ~]# createrepo /usr/share/nginx/html/repo/
-Spawning worker 0 with 2 pkgs
-Workers Finished
-Saving Primary metadata
-Saving file lists metadata
-Saving other metadata
-Generating sqlite DBs
-Sqlite DBs complete
+
+-Создаем свой репозиторий и добавляем два пакета:
+
+```
+mkdir /usr/share/nginx/html/repo
+cp rpmbuild/RPMS/x86_64/nginx-1.14.1-1.el7_4.ngx.x86_64.rpm /usr/share/nginx/html/repo/
+wget http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm \
+-O /usr/share/nginx/html/repo/percona-release-0.1-6.noarch.rpm
+createrepo /usr/share/nginx/html/repo/
+```
+-Для прозрачности настроим в NGINX доступ к листингу каталога:
+В location / в файле [/etc/nginx/conf.d/default.conf]{default.conf} добавим директиву autoindex on.
+В результате location будет выглядеть так:
+```
+location / {
+root /usr/share/nginx/html;
+index index.html index.htm;
+***autoindex on;***
+}
+```
+
+
+
+
 [root@otuslinuxhw7 ~]# curl -a http://localhost/repo/
 <html>
 <head><title>Index of /repo/</title></head>
