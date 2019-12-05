@@ -14,17 +14,18 @@
 ## **Выполнено: (для проверки достаточно использовать [Vagrantfile](Vagrantfile))**
 
 ### **1.Создать свой RPM пакет (nginx c поддержкой openssl)**
-    1. Установить необходимые пакеты
-    ```bash
-    yum install -y \
-    redhat-lsb-core \
-    wget \
-    rpmdevtools \
-    rpm-build \
-    createrepo \
-    yum-utils \
-    gcc
-    ```
+- Установить необходимые пакеты
+```bash
+yum install -y \
+redhat-lsb-core \
+wget \
+rpmdevtools \
+rpm-build \
+createrepo \
+yum-utils \
+gcc
+```
+
     2. Загрузим SRPM пакет NGINX:
     ```
     wget https://nginx.org/packages/centos/7/SRPMS/nginx-1.14.1-1.el7_4.ngx.src.rpm
