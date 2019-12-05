@@ -103,5 +103,4 @@ Sqlite DBs complete
 [root@otuslinuxhw7 ~]# yum list --showduplicates | grep otus
 nginx.x86_64                                1:1.14.1-1.el7_4.ngx       otus
 percona-release.noarch                      0.1-6                      otus
-
 ```
