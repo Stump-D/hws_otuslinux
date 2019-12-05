@@ -13,5 +13,46 @@
 
 ## **Выполнено: (для проверки достаточно использовать [Vagrantfile](Vagrantfile))**
 
-yum list --showduplicates |grep otus
-sudo yum  install percona-release -y
+```
+[root@otuslinuxhw7 ~]# sudo -s
+[root@otuslinuxhw7 ~]# ll ~/rpmbuild/RPMS/x86_64/
+total 4364
+-rw-r--r--. 1 root root 1974420 дек  5 06:59 nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
+-rw-r--r--. 1 root root 2488224 дек  5 06:59 nginx-debuginfo-1.14.1-1.el7_4.ngx.x86_64.rpm
+[root@otuslinuxhw7 ~]# systemctl status nginx
+● nginx.service - nginx - high performance web server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Чт 2019-12-05 06:59:03 UTC; 8h ago
+     Docs: http://nginx.org/en/docs/
+  Process: 20989 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf (code=exited, status=0/SUCCESS)
+ Main PID: 20990 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─20990 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+           └─21000 nginx: worker process
+
+дек 05 06:59:03 otuslinuxhw7 systemd[1]: Starting nginx - high performance web server...
+дек 05 06:59:03 otuslinuxhw7 systemd[1]: PID file /var/run/nginx.pid not readable (yet?) after start.
+дек 05 06:59:03 otuslinuxhw7 systemd[1]: Started nginx - high performance web server.
+[root@otuslinuxhw7 ~]# createrepo /usr/share/nginx/html/repo/
+Spawning worker 0 with 2 pkgs
+Workers Finished
+Saving Primary metadata
+Saving file lists metadata
+Saving other metadata
+Generating sqlite DBs
+Sqlite DBs complete
+[root@otuslinuxhw7 ~]# curl -a http://localhost/repo/
+<html>
+<head><title>Index of /repo/</title></head>
+<body bgcolor="white">
+<h1>Index of /repo/</h1><hr><pre><a href="../">../</a>
+<a href="repodata/">repodata/</a>                                          05-Dec-2019 15:27                   -
+<a href="nginx-1.14.1-1.el7_4.ngx.x86_64.rpm">nginx-1.14.1-1.el7_4.ngx.x86_64.rpm</a>                05-Dec-2019 06:59             1974420
+<a href="percona-release-0.1-6.noarch.rpm">percona-release-0.1-6.noarch.rpm</a>                   13-Jun-2018 06:34               14520
+</pre><hr></body>
+</html>
+[root@otuslinuxhw7 ~]# yum list --showduplicates | grep otus
+nginx.x86_64                                1:1.14.1-1.el7_4.ngx       otus
+percona-release.noarch                      0.1-6                      otus
+
+```
