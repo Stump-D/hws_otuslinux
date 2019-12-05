@@ -84,6 +84,7 @@ systemctl status nginx
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: Starting nginx - high performance web server...
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: PID file /var/run/nginx.pid not readable (yet?) after start.
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: Started nginx - high performance web server.
+```
 
 -Создаем свой репозиторий и добавляем два пакета:
 
