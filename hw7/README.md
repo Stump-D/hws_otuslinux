@@ -13,5 +13,5 @@
 
 ## **Выполнено: (для проверки достаточно использовать [Vagrantfile](Vagrantfile))**
 
-
-
+yum list --showduplicates |grep otus
+sudo yum  install percona-release -y
