@@ -110,7 +110,7 @@ autoindex on;
 nginx -t
 nginx -s reload
 ```
-- Проверяем работу nginx
+- Проверяем работу репозитория:
 ```
 [root@otuslinuxhw7 ~]# curl -a http://localhost/repo/
 <html>
