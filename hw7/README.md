@@ -86,7 +86,7 @@ systemctl status nginx
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: Started nginx - high performance web server.
 ```
 
--Создаем свой репозиторий и добавляем два пакета:
+- Создаем свой репозиторий и добавляем два пакета:
 
 ```
 mkdir /usr/share/nginx/html/repo
@@ -95,7 +95,7 @@ wget http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-relea
 -O /usr/share/nginx/html/repo/percona-release-0.1-6.noarch.rpm
 createrepo /usr/share/nginx/html/repo/
 ```
--Для прозрачности настроим в NGINX доступ к листингу каталога:
+- Для прозрачности настроим в NGINX доступ к листингу каталога:
 В location / в файле [/etc/nginx/conf.d/default.conf]{default.conf} добавим директиву autoindex on.
 В результате location будет выглядеть так:
 ```
