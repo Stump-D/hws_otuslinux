@@ -142,7 +142,7 @@ nginx.x86_64                                1:1.14.1-1.el7_4.ngx       otus
 percona-release.noarch                      0.1-6                      otus
 ```
 
--Ставим percona-release из локального репозитория:
+- Ставим percona-release из локального репозитория:
 ```
 yum install percona-release -y
 Loaded plugins: fastestmirror
