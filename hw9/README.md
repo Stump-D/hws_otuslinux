@@ -78,40 +78,22 @@ docker login
 docker push stump773/my-nginx-image
 ```
 
-https://docs.docker.com/glossary/
-Образ
 
-Docker images are the basis of containers. 
-An Image is an ordered collection of root filesystem changes and the corresponding execution parameters for use within a container runtime. 
-An image typically contains a union of layered filesystems stacked on top of each other. An image does not have state and it never changes.
-
+2. Выводы про разницу между контейнером и образом:
 Образ докера являются основой контейнеров. Образ - это упорядоченная коллекция изменений корневой файловой системы и соответствующих параметров 
 выполнения для использования в среде выполнения контейнера. 
 Образ обычно содержит объединение многоуровневых файловых систем, расположенных друг на друге. Образ не имеет состояния и никогда не изменяется.
-
-
-Контейнер 
-A container is a runtime instance of a docker image.
-
-A Docker container consists of
-
-A Docker image
-An execution environment
-A standard set of instructions
-The concept is borrowed from Shipping Containers, which define a standard to ship goods globally. Docker defines a standard to ship software.
-
-
 Контейнер-это исполняемый экземпляр образа docker.
 Контейнер Docker состоит из
-Docker образа 
-Среды выполнения
-Стандартного набора инструкций
+- Docker образа 
+- Среды выполнения
+- Стандартного набора инструкций
 Концепция заимствована из морских контейнеров, которые определяют стандарт для доставки товаров по всему миру. 
 Docker определяет стандарт для отправки программного обеспечения.
 
+Взято из [Docker Glossary](https://docs.docker.com/glossary/)
 
+3. Ответьте на вопрос: Можно ли в контейнере собрать ядро?
 
+- Собрать возможно.[https://github.com/moul/docker-kernel-builde](https://github.com/moul/docker-kernel-builder). Запустить вряд ли возможно ).
 
-
-Возможно
-https://github.com/moul/docker-kernel-builder
