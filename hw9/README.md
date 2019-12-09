@@ -16,10 +16,10 @@
 
 1. Создан  свой кастомный образ nginx на базе alpine. 
 
-- Для создания образа подготовлен следующий [Dockerfile](Docker).
+- Для создания образа подготовлен следующий [Dockerfile](Dockerfile).
 
 
-ocker build -t my-nginx-image:latest .
+docker build -t my-nginx-image:latest .
 docker images
 docker login
 docker push stump773/my-nginx-image
