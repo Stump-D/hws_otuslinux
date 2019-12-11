@@ -108,7 +108,10 @@ docker inspect [OPTIONS] NAME|ID [NAME|ID...]
 docker exec -it NAME|ID /bin/sh
 docker logs NAME|ID
 docker rm $(docker ps -aq)
-docker run NAME --restart always
+docker run NAME --restart always#стартовать контейнер после перезагрузки хоста
+docker run NAME --rm #удаление контейнера после остановки
+docker network create BRIDGE_NAME
+docker network ls
 ```
 
 
