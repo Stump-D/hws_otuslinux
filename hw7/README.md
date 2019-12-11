@@ -184,3 +184,87 @@ Installed:
 
 Complete!
 ```
+
+3. Реализация дополнительно пакет через docker
+
+- Создаем [Dockerfile](Dockerfile)
+
+- Создаем Image
+
+```
+[root@4otus hw7]# docker build -t stump773/my-nginx-ssl-image:latest .
+Sending build context to Docker daemon 2.026 MB
+Step 1/6 : FROM centos:centos7
+---> 5e35e350aded
+Step 2/6 : LABEL MAINTAINER "stump773@gmail.com"
+---> Using cache
+---> a350eac119bb
+Step 3/6 : COPY ./nginx-1.14.1-1.el7_4.ngx.x86_64.rpm /nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
+--> Using cache
+---> 2f5c00fe2bc2
+Step 4/6 : RUN yum localinstall -y /nginx-1.14.1-1.el7_4.ngx.x86_64.rpm -y && rm -rf /nginx-1.14.1-1.el7_4.ngx.x86_64.rpm && yum clean packages -y
+---> Using cache
+---> 1e3799845830
+Step 5/6 : EXPOSE 80
+---> Running in 629d2755d99a
+---> a24b5e54907f
+Removing intermediate container 629d2755d99a
+Step 6/6 : CMD nginx -g daemon off;
+---> Running in 33169be9d19a
+---> fbdb8a159f65
+Removing intermediate container 33169be9d19a
+Successfully built fbdb8a159f65
+```       
+
+- Запускаем контейнер и проверяем
+```
+[root@4otus hw7]# docker run -d -p 80:80 stump773/my-nginx-ssl-image
+7b581b463f0bb60421b7b88ff91a6e3cf9a80cdea84523481424b9750876f00b
+[root@4otus hw7]# docker ps
+CONTAINER ID        IMAGE                         COMMAND                  CREATED             STATUS              PORTS                NAMES
+7b581b463f0b        stump773/my-nginx-ssl-image   "nginx -g 'daemon ..."   10 seconds ago      Up 9 seconds        0.0.0.0:80->80/tcp   clever_hamilton
+[root@4otus hw7]# ss -tnulp | grep 80
+tcp    LISTEN     0      128    [::]:80                 [::]:*                   users:(("docker-proxy-cu",pid=24616,fd=4))
+[root@4otus hw7]# curl localhost
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+-  Выкладываем собранный [образ](https://hub.docker.com/repository/docker/stump773/my-nginx-ssl-image) в Docker Hub 
+```
+[root@4otus hw7]# docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username (stump773):
+Password:
+Login Succeeded
+[root@4otus hw7]# docker push stump773/my-nginx-ssl-image
+The push refers to a repository [docker.io/stump773/my-nginx-ssl-image]
+1e9dc618d129: Pushed
+6b7c9a54a4d8: Pushed
+77b174a6a187: Mounted from library/centos
+latest: digest: sha256:4ec9a043d41de2635696c2002b5082f7b0a6cdce676bf5355c776cb809ebe1aa size: 952
+```
+
