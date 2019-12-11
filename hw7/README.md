@@ -185,7 +185,7 @@ Installed:
 Complete!
 ```
 
-### **3. Реализация дополнительно пакет через docker**
+### **3. Реализация пакета через docker**
 
 - Создаем [Dockerfile](Dockerfile)
 
