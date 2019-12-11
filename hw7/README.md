@@ -14,7 +14,7 @@
 ## **Выполнено: (для проверки достаточно использовать [Vagrantfile](Vagrantfile))**
 
 ### **1.Создать свой RPM пакет (nginx c поддержкой openssl)**
-- Установим необходимые пакеты
+**- Установим необходимые пакеты**
 ```bash
 yum install -y \
 redhat-lsb-core \
@@ -25,34 +25,34 @@ createrepo \
 yum-utils \
 gcc
 ```
-- Загрузим SRPM пакет NGINX:
+**- Загрузим SRPM пакет NGINX:**
 ```
 wget https://nginx.org/packages/centos/7/SRPMS/nginx-1.14.1-1.el7_4.ngx.src.rpm
 ```
-- Установим SRC пакет. При установке такого пакета в домашней директории создается древо каталогов для
-сборки:
+**- Установим SRC пакет. При установке такого пакета в домашней директории создается древо каталогов для сборки:**
 ```
 rpm -i nginx-1.14.1-1.el7_4.ngx.src.rpm
 ```
-- Скачиваем и разархивируем последний исходник для openssl:
+**- Скачиваем и разархивируем последний исходник для openssl:**
 ```
 wget https://www.openssl.org/source/latest.tar.gz
 tar -xvf latest.tar.gz
 ```
-- Cтавим все зависимости чтобы в процессе сборки не было ошибок:
+**- Cтавим все зависимости чтобы в процессе сборки не было ошибок:**
 ```
 yum-builddep rpmbuild/SPECS/nginx.spec
 ```
-- Правим сам [spec](nginx.spec) файл чтобы NGINX собирался с необходимыми нам опциями:
+**- Правим сам [spec](nginx.spec) файл чтобы NGINX собирался с необходимыми нам опциями:**
 ```
 --with-openssl=/root/openssl-1.1.1d
 ```
 По этой [ссылке](https://nginx.org/ru/docs/configure.html) можно посмотреть все доступные опции для сборки.
-- Собственно, запускаем процесс сборки самого пакета:
+
+**- Собственно, запускаем процесс сборки самого пакета:**
 ```
 rpmbuild -bb rpmbuild/SPECS/nginx.spec
 ```
-- Проверяем результаты сборки:
+**- Проверяем результаты сборки:**
 ```
 [root@otuslinuxhw7 ~]# sudo -s
 [root@otuslinuxhw7 ~]# ll ~/rpmbuild/RPMS/x86_64/
@@ -63,11 +63,11 @@ total 4364
     
     
 ### **2.Создать свой репо и разместить там свой RPM**    
-- Устанавливаем nginx из собранного rpm в п.1
+**- Устанавливаем nginx из собранного rpm в п.1**
 ```
 yum localinstall -y rpmbuild/RPMS/x86_64/nginx-1.14.1-1.el7_4.ngx.x86_64.rpm
 ```
-- Стартуем nginx и проверяем:
+**- Стартуем nginx и проверяем:**
 ```
 systemctl start nginx
 systemctl status nginx
@@ -86,7 +86,7 @@ systemctl status nginx
 дек 05 06:59:03 otuslinuxhw7 systemd[1]: Started nginx - high performance web server.
 ```
 
-- Создаем свой репозиторий и добавляем два пакета:
+**- Создаем свой репозиторий и добавляем два пакета:**
 
 ```
 mkdir /usr/share/nginx/html/repo
@@ -95,7 +95,7 @@ wget http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-relea
 -O /usr/share/nginx/html/repo/percona-release-0.1-6.noarch.rpm
 createrepo /usr/share/nginx/html/repo/
 ```
-- Для прозрачности настроим в NGINX доступ к листингу каталога:
+**- Для прозрачности настроим в NGINX доступ к листингу каталога:**
 В location / в файле [/etc/nginx/conf.d/default.conf](default.conf) добавим директиву autoindex on.
 В результате location будет выглядеть так:
 ```
@@ -105,12 +105,12 @@ index index.html index.htm;
 autoindex on;
 }
 ```
-- Проверяем синтаксис и перезапускаем NGINX:
+**- Проверяем синтаксис и перезапускаем NGINX:**
 ```
 nginx -t
 nginx -s reload
 ```
-- Проверяем работу репозитория:
+**- Проверяем работу репозитория:**
 ```
 [root@otuslinuxhw7 ~]# curl -a http://localhost/repo/
 <html>
@@ -123,7 +123,7 @@ nginx -s reload
 </pre><hr></body>
 </html>
 ````
-- Добавляем его в перечень локальных репозиториев:
+**- Добавляем его в перечень локальных репозиториев:**
 ```
 cat >> /etc/yum.repos.d/otus.repo << EOF
 [otus]
@@ -134,7 +134,7 @@ enabled=1
 EOF
 ```
 
-- Проверяем:
+**- Проверяем:**
 ```
 yum repolist enabled | grep otus
 [root@otuslinuxhw7 ~]# yum list --showduplicates | grep otus
@@ -142,7 +142,7 @@ nginx.x86_64                                1:1.14.1-1.el7_4.ngx       otus
 percona-release.noarch                      0.1-6                      otus
 ```
 
-- Ставим percona-release из локального репозитория:
+**- Ставим percona-release из локального репозитория:**
 ```
 yum install percona-release -y
 Loaded plugins: fastestmirror
@@ -187,9 +187,9 @@ Complete!
 
 ### **3. Реализация пакета через docker**
 
-- Создаем [Dockerfile](Dockerfile)
+**- Создаем [Dockerfile](Dockerfile)**
 
-- Создаем Image
+**- Создаем Image**
 
 ```
 [root@4otus hw7]# docker build -t stump773/my-nginx-ssl-image:latest .
@@ -216,7 +216,7 @@ Removing intermediate container 33169be9d19a
 Successfully built fbdb8a159f65
 ```       
 
-- Запускаем контейнер и проверяем
+**- Запускаем контейнер и проверяем**
 ```
 [root@4otus hw7]# docker run -d -p 80:80 stump773/my-nginx-ssl-image
 7b581b463f0bb60421b7b88ff91a6e3cf9a80cdea84523481424b9750876f00b
@@ -253,7 +253,7 @@ Commercial support is available at
 </html>
 ```
 
--  Выкладываем собранный [образ](https://hub.docker.com/repository/docker/stump773/my-nginx-ssl-image) в Docker Hub 
+**-  Выкладываем собранный [образ](https://hub.docker.com/repository/docker/stump773/my-nginx-ssl-image) в Docker Hub**
 ```
 [root@4otus hw7]# docker login
 Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
