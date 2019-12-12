@@ -11,7 +11,7 @@ services:
     networks:
       - front_end
   phpfpm:
-    image: php:fpm-alpine
+    image: stump773/php-fpm:0.1
     volumes:
       - ./www:/var/www/html
     networks:
