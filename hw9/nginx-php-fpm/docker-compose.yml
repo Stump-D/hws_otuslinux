@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  web:
+    image: stump773/nginx:0.1
+    container_name: web
+    depends_on:
+      - php
+    volumes:
+      - ./default.conf:/etc/nginx/sites-available/default
+      - ./default.conf:/etc/nginx/sites-enabled/default
+      - ./info.php:/var/www/info.php
+      - ./test.php:/var/www/test.php
+    ports:
+      - "80:80"
+    networks:
+      front_net:
+        ipv4_address: 10.20.30.10
+        aliases: 
+          - web
+  php:
+    image: stump773/php-fpm:0.1
+    container_name: php
+    depends_on:
+      - php
+    volumes:
+      - ./info.php:/var/www/info.php
+      - ./test.php:/var/www/test.php
+    ports:
+      - "80:80"
+    networks:
+      front_net:
+        ipv4_address: 10.20.30.20
+        aliases: 
+          - php
+networks:
+  front_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.20.30.0/24"
+  
