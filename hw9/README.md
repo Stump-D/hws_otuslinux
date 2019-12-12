@@ -109,7 +109,7 @@ Docker определяет стандарт для отправки прогр�
 
 ### **Задание (*)**
 
-- Создан [Dockerfile](./nginx-php-fpm/php-fpm/Dockerfile) для создания контейнера с php-fpm
+- Создан [Dockerfile](./nginx-php-fpm/php-fpm/Dockerfile) для создания образа с php-fpm
 - Создан [docker-compose.yml](./nginx-php-fpm/docker-compose.yml)
 - Запускаем и проверяем
 ```
