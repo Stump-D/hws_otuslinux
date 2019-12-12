@@ -12,6 +12,12 @@
 Собранный образ необходимо запушить в docker hub и дать ссылку на ваш
 репозитори
 
+Задание со * (звездочкой)
+Создайте кастомные образы nginx и php, объедините их в docker-compose.
+После запуска nginx должен показывать php info.
+Все собранные образы должны быть в docker hub
+
+
 ## **Выполнено:**
 
 ### **1. Создан  свой кастомный образ nginx на базе alpine.**
@@ -100,6 +106,27 @@ Docker определяет стандарт для отправки прогр�
 - Собрать возможно - [https://github.com/moul/docker-kernel-builde](https://github.com/moul/docker-kernel-builder). 
  Загрузиться вряд ли получится )
 
+
+### ** * **
+
+- Создан [Dockerfile](./nginx-php-fpm/php-fpm/Dockerfile) для создания контейнера с php-fpm
+- Создан [docker-compose.yml](./nginx-php-fpm/docker-compose.yml)
+- Запускаем и проверяем
+```
+[root@4otus nginx-php-fpm]# docker-compose up
+
+Starting nginxphpfpm_web_1 ... doneone
+Attaching to nginxphpfpm_phpfpm_1, nginxphpfpm_web_1
+phpfpm_1  | [12-Dec-2019 15:58:22] NOTICE: fpm is running, pid 1
+phpfpm_1  | [12-Dec-2019 15:58:22] NOTICE: ready to handle connections
+phpfpm_1  | 172.19.0.3 -  12/Dec/2019:15:58:31 +0000 "GET /index.php" 200
+web_1     | 192.168.0.100 - - [12/Dec/2019:15:58:31 +0000] "GET / HTTP/1.1" 200 74303 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" "-"
+^CGracefully stopping... (press Ctrl+C again to force)
+Stopping nginxphpfpm_phpfpm_1 ... done
+Stopping nginxphpfpm_web_1    ... done
+```
+
+![Screen](./nginx-php-fpm/screen.jpg)
 
 ### ***Полезные команды:***
 ```
