@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    image: stump773/my-nginx-image:latest
+    image: stump773/my-nginx-image:0.2
     ports:
       - 80:80
     volumes:
