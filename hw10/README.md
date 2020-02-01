@@ -47,7 +47,7 @@ IdentitiesOnly yes
 LogLevel FATAL
 ```
 
-Создаем [inventory](./Ansible/hosts.yml) файл
+Создаем [ansible.cfg](./Ansible/ansible.cfg, [inventory](./Ansible/hosts.yml) файлы
 
 Проверим, что Ansible может управлять нашим хостом
                    
