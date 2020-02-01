@@ -1,0 +1,63 @@
+---
+- name: NGINX | Install and configure NGINX
+  hosts: nginxhost
+  become: yes
+  vars:
+    nginx_port: 8080
+    epel: epel-release
+    html: /usr/share/nginx/html/index.html
+    nginx_conf_mode: '0640'
+    index_html_mode: '0644'    
+    
+  tasks:
+    - name: NGINX | Install EPEL Repo package
+      yum:
+        name: "{{  epel }}"
+        state: present
+      tags:
+        - epel-package
+
+    - name: NGINX | Install NGINX package from EPEL Repo
+      yum:
+        name: nginx
+        state: present
+      tags:
+        - nginx-package
+      notify:
+        - restart_nginx
+
+    - name: Configure html file | Config html file from template
+      template:
+        src: templates/index.html.j2
+        dest: "{{ html }}"
+        owner: root
+        group: root
+        mode: "{{ index_html_mode }}"
+      tags:
+        - index-html-configuration
+
+    - name: NGINX | Create NGINX config file from template
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: "{{ nginx_conf_mode }}"
+      notify:
+        - reload nginx
+      tags:
+        - nginx-configuration
+
+  handlers:
+    - name: restart_nginx
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
+
+    
