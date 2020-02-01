@@ -1,0 +1,6 @@
+---
+- name: NGINX | Install and configure NGINX
+  hosts: nginxhost
+  become: yes
+  roles:
+    - nginx

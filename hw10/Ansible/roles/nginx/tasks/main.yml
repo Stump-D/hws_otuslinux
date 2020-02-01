@@ -1,0 +1,39 @@
+---
+- name: NGINX | Install EPEL Repo package
+  yum:
+    name: "{{  epel }}"
+    state: present
+  tags:
+    - epel-package
+
+- name: NGINX | Install NGINX package from EPEL Repo
+  yum:
+    name: nginx
+    state: present
+  notify:
+    - restart_nginx
+  tags:
+    - nginx-package
+
+
+- name: Configure html file | Config html file from template
+  template:
+    src: templates/index.html.j2
+    dest: "{{ html }}"
+    owner: root
+    group: root
+    mode: "{{ index_html_mode }}"
+  tags:
+    - index-html-configuration
+
+- name: NGINX | Create NGINX config file from template
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: "{{ nginx_conf_mode }}"
+  notify:
+    - reload nginx
+  tags:
+    - nginx-configuration
