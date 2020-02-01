@@ -19,13 +19,22 @@
 
 ## **Выполнено:**
 
+Установка Ansible
+```
 python -V
 sudo yum install ansible -y
 ansible --version
+```
+
+Подготовка окружения
+```
 mkdir Ansible
 cd Ansible
 wget https://gist.githubusercontent.com/lalbrekht/f811ce9a921570b1d95e07a7dbebeb1e/raw/9d6f9e1ad06b257c3dc6d80a045baa6c5b75dd88/gistfile1.txt -O Vagrantfile
-vagrant ssh-config
+```
+
+```
+[root@4otus Ansible]vagrant ssh-config
 Host nginx
 HostName 127.0.0.1
 User vagrant
@@ -36,16 +45,13 @@ PasswordAuthentication no
 IdentityFile /root/otuslinux/hws_otuslinux/hw10/Ansible/.vagrant/machines/nginx/virtualbox/private_key
 IdentitiesOnly yes
 LogLevel FATAL
+```
+
+Создаем [inventory](./Ansible/host.yml) файл
+
+Проверим, что Ansible может управлять нашим хостом
                    
-[root@4otus Ansible]# ansible nginx -i staging/hosts -m ping
-nginx | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-                   
+```
 [root@4otus Ansible]# ansible nginx -m ping
 nginx | SUCCESS => {
     "ansible_facts": {
@@ -54,6 +60,7 @@ nginx | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
+```
  
 [root@4otus Ansible]#  ansible nginx -m command -a "uname -r"
 nginx | CHANGED | rc=0 >>
