@@ -20,3 +20,35 @@
 ## **Выполнено:**
 
 Использован [Vagrantfile](./Ansible/Vagrantfile)
+
+Запускаем:
+```
+[root@4otus Ansible]# ansible-playbook playbooks/nginx.yml
+
+PLAY [NGINX | Install and configure NGINX] **********************************************************************************************************
+
+TASK [Gathering Facts] ******************************************************************************************************************************
+ok: [nginxhost]
+
+TASK [nginx : NGINX | Install EPEL Repo package] ****************************************************************************************************
+ok: [nginxhost]
+
+TASK [nginx : NGINX | Install NGINX package from EPEL Repo] *****************************************************************************************
+ok: [nginxhost]
+
+TASK [nginx : Configure html file | Config html file from template] *********************************************************************************
+ok: [nginxhost]
+
+TASK [nginx : NGINX | Create NGINX config file from template] ***************************************************************************************
+ok: [nginxhost]
+
+PLAY RECAP ******************************************************************************************************************************************
+nginxhost                  : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+Проверяем:
+```
+[root@4otus hw10]# curl http://192.168.11.150:8080
+# Ansible managed
+<h1> Welcome to nginxhost </h1>
+```
