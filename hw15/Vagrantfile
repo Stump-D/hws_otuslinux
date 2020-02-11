@@ -95,21 +95,24 @@ Vagrant.configure("2") do |config|
         when "inetRouter"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
             set -x
-            sysctl net.ipv4.conf.all.forwarding=1
+            echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+            sysctl -p
             iptables -t nat -A POSTROUTING ! -d 192.168.0.0/16 -o eth0 -j MASQUERADE
             ip route add 192.168.0.0/22 via 192.168.255.2
+            ip route flush cache
             SHELL
         when "centralRouter"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
             set -x
-            sysctl net.ipv4.conf.all.forwarding=1
+            echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+            sysctl -p
             echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0 
             echo "GATEWAY=192.168.255.1" >> /etc/sysconfig/network-scripts/ifcfg-eth1
             systemctl restart network
-            ip route delete default
             ip route add default via 192.168.255.1
             ip route add 192.168.2.0/24 via 192.168.0.18
             ip route add 192.168.1.0/24 via 192.168.0.22
+            ip route flush cache
             SHELL
         when "centralServer"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
@@ -119,16 +122,19 @@ Vagrant.configure("2") do |config|
             systemctl restart network
             ip route delete default
             ip route add default via 192.168.0.1
+            ip route flush cache
             SHELL
         when "office1Router"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
             set -x
-            sysctl net.ipv4.conf.all.forwarding=1
+            echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+            sysctl -p
             echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0 
             echo "GATEWAY=192.168.0.17" >> /etc/sysconfig/network-scripts/ifcfg-eth1
             systemctl restart network
             ip route delete default
             ip route add default via 192.168.0.17
+            ip route flush cache
             SHELL
         when "office1Server"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
@@ -138,16 +144,19 @@ Vagrant.configure("2") do |config|
             systemctl restart network
             ip route delete default
             ip route add default via 192.168.2.65
+            ip route flush cache
             SHELL
         when "office2Router"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
             set -x
-            sysctl net.ipv4.conf.all.forwarding=1
+            echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+            sysctl -p
             echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0 
             echo "GATEWAY=192.168.0.21" >> /etc/sysconfig/network-scripts/ifcfg-eth1
             systemctl restart network
             ip route delete default
             ip route add default via 192.168.0.21
+            ip route flush cache
             SHELL
         when "office2Server"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
@@ -157,6 +166,7 @@ Vagrant.configure("2") do |config|
             systemctl restart network
             ip route delete default
             ip route add default via 192.168.1.129
+	    ip route flush cache
             SHELL
             
         end

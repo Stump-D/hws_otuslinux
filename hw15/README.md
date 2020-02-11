@@ -213,6 +213,9 @@ CentralServer------------> CentralRouter --InetRouter --> internet
 Office2Server--->Office2Router ---/
 ```
 
+![Схема сети](https://github.com/Stump-D/hws_otuslinux/tree/master/hw15/net15.png)
+
+
 | Узел          | Интерфейс | Адрес                              | Default GW                   | virtualbox__intnet |
 |---------------|-----------|------------------------------------|------------------------------|--------------------|
 | inetRouter    | eth0      | DHCP                               | DHCP                         |                    |
@@ -233,5 +236,5 @@ Office2Server--->Office2Router ---/
 | office2Router | eth1      | 192.168.0.22/255.255.255.252 = 30  | 192.168.0.21(CentralRouter)  | "office2-net"      |
 |               | eth2      | 192.168.1.1/255.255.255.128 = 25   |                              | "dev2-net"         |
 |               | eth3      | 192.168.1.129/255.255.255.192 = 26 |                              | "testservers2-net" |
-|               | eth3      | 192.168.1.193/255.255.255.192 = 26 |                              | "officehw2-net"    |
+|               | eth4      | 192.168.1.193/255.255.255.192 = 26 |                              | "officehw2-net"    |
 | office2Server | eth1      | 192.168.1.130/255.255.255.192 = 26 | 192.168.1.129(office2Router) | "testservers2-net" |
