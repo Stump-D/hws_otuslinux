@@ -213,7 +213,7 @@ CentralServer------------> CentralRouter --InetRouter --> internet
 Office2Server--->Office2Router ---/
 ```
 
-![Схема сети](https://github.com/Stump-D/hws_otuslinux/tree/master/hw15/net15.png)
+![Схема сети](https://github.com/Stump-D/hws_otuslinux/blob/master/hw15/net15.png)
 
 
 | Узел          | Интерфейс | Адрес                              | Default GW                   | virtualbox__intnet |
