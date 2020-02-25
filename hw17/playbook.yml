@@ -1,0 +1,80 @@
+---
+- name:  testClientsConfig| testClients Network Configuration
+  hosts: testClient1 testClient2
+  become: yes
+  vars:
+    testClientIp: "10.10.10.1/24"
+    vlan1_id: "vlan100"
+    vlan2_id: "vlan101"
+    net_libs: NetworkManager-glib
+  tasks:
+    - name: install needed network manager libs
+      yum:
+        name: "{{ net_libs }}"
+        state: installed
+      with_items:
+        - NetworkManager-glib
+        - libnm-qt-devel.x86_64
+        - nm-connection-editor.x86_64
+        - libsemanage-python
+        - policycoreutils-python
+    - name: Try to set ip  
+      nmcli:
+        type: ethernet
+        conn_name: eth1
+        ifname: eth1
+        ip4: "{{  testClientIp  }}"
+        state: present
+      tags:
+        - set-client-ip
+      notify:
+        - restart_network
+        - reload_network_interface
+  handlers:
+    - name: restart_network
+      systemd:
+        name: NetworkManager
+        state: restarted
+        enabled: yes
+    - name: reload_network_interface
+      shell: nmcli con reload 
+- name:  testServersConfig| testServers Network Configuration
+  hosts: testServer1 testServer2
+  become: yes
+  vars:
+    testServerIp: "10.10.10.254/24"
+    vlan1_id: "vlan100"
+    vlan2_id: "vlan101"
+    net_libs: NetworkManager-glib
+  tasks:
+    - name: install needed network manager libs
+      yum:
+        name: "{{ net_libs }}"
+        state: installed
+      with_items:
+        - NetworkManager-glib
+        - libnm-qt-devel.x86_64
+        - nm-connection-editor.x86_64
+        - libsemanage-python
+        - policycoreutils-python
+    - name: Try to set ip  
+      nmcli:
+        type: ethernet
+        conn_name: eth1
+        ifname: eth1
+        ip4: "{{  testServerIp  }}"
+        state: present
+      tags:
+        - set-client-ip
+      notify:
+        - restart_network
+        - reload_network_interface
+  handlers:
+    - name: restart_network
+      systemd:
+        name: NetworkManager
+        state: restarted
+        enabled: yes
+    - name: reload_network_interface
+      shell: nmcli con reload 
+
