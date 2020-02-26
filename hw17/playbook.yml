@@ -1,11 +1,8 @@
 ---
-- name:  testClientsConfig| testClients Network Configuration
-  hosts: testClient1 testClient2
+- name:  install needed network manager libs
+  hosts: all
   become: yes
   vars:
-    testClientIp: "10.10.10.1/24"
-    vlan1_id: "vlan100"
-    vlan2_id: "vlan101"
     net_libs: NetworkManager-glib
   tasks:
     - name: install needed network manager libs
@@ -18,6 +15,63 @@
         - nm-connection-editor.x86_64
         - libsemanage-python
         - policycoreutils-python
+
+- name:  Routers| Routers Network Configuration
+  hosts: inetRouter
+  become: yes
+  vars:
+    inetRouter_ip: 192.168.255.1/30
+    nmcli_team:
+     - conn_name: Team0
+       ip4: '{{ inetRouter_ip }}'
+    nmcli_team_slave:
+      - conn_name: eth1
+        ifname: eth1
+        master: Team0
+      - conn_name: eth2
+        ifname: eth2
+        master: Team0
+  tasks:
+    - name: Add a Team connection with static IP configuration
+      nmcli:
+        type: team
+        conn_name: '{{ item.conn_name }}'
+        ip4: '{{ item.ip4 }}'
+        state: present
+      with_items:
+      - '{{ nmcli_team }}'
+
+    - name: Try nmcli add team-slave
+      nmcli:
+        type: team-slave
+        conn_name: '{{ item.conn_name }}'
+        ifname: '{{ item.ifname }}'
+        master: '{{ item.master }}'
+        state: present
+      with_items:
+        - '{{ nmcli_team_slave }}'
+      tags:
+        - add team-slave
+      notify:
+        - restart_network
+        - reload_network_interface
+  handlers:
+    - name: restart_network
+      systemd:
+        name: NetworkManager
+        state: restarted
+        enabled: yes
+    - name: reload_network_interface
+      shell: nmcli con reload
+
+- name:  testClientsConfig| testClients Network Configuration
+  hosts: testClient1 testClient2
+  become: yes
+  vars:
+    testClientIp: "10.10.10.1/24"
+    vlan1_id: "vlan100"
+    vlan2_id: "vlan101"
+  tasks:
     - name: Try to set ip  
       nmcli:
         type: ethernet
@@ -38,6 +92,7 @@
         enabled: yes
     - name: reload_network_interface
       shell: nmcli con reload 
+      
 - name:  testServersConfig| testServers Network Configuration
   hosts: testServer1 testServer2
   become: yes
@@ -77,4 +132,3 @@
         enabled: yes
     - name: reload_network_interface
       shell: nmcli con reload 
-
