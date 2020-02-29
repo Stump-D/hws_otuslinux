@@ -4,4 +4,4 @@
     name: NetworkManager
     state: restarted
     enabled: yes
-
+  

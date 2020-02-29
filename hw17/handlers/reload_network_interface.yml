@@ -1,4 +1,6 @@
 ---
 - name: reload_network_interface
-  shell: nmcli con reload
+  shell: 
+    nmcli con reload
+    /etc/init.d/network restart
 

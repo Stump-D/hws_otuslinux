@@ -32,27 +32,37 @@
   handlers:
     - include: handlers/restart_network.yml
     - include: handlers/reload_network_interface.yml
-
       
 - name:  Routers Config| Routers Network Configuration
   hosts: Routers
   become: yes
   vars:
+    team: Team0
     nmcli_team_slave:
       - conn_name: eth1
         ifname: eth1
-        master: Team0
+        master: "{{ team }}"
       - conn_name: eth2
         ifname: eth2
-        master: Team0
+        master: "{{ team }}"
   tasks:
     - name: Add a Team connection with static IP configuration
       nmcli:
         type: team
-        conn_name: Team0
+        mode: active-backup
+        conn_name: "{{  team }}"
         ip4: '{{ ip4addr }}'
         state: present
-  
+     
+    - name: Try to set runner for Team0 
+      shell:
+        nmcli connection modify "{{ team }}" team.runner activebackup   
+      tags:
+        - set-team-mode
+      notify:
+        - restart_network
+        - reload_network_interface
+        
     - name: Try nmcli add team-slave
       nmcli:
         type: team-slave
