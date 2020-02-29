@@ -1,0 +1,4 @@
+---
+- name: reload_network_interface
+  shell: nmcli con reload
+
