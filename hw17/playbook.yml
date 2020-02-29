@@ -16,14 +16,28 @@
         - libsemanage-python
         - policycoreutils-python
 
-- name:  Routers| Routers Network Configuration
-  hosts: inetRouter
+
+- name:  Isolated Config| testClients & testServers Network Configuration
+  hosts: Isolated
+  become: yes
+  tasks:
+    - name: Try to set vlan&ip 
+      shell:
+        nmcli con add type vlan con-name "{{  vlan_name  }}"  dev eth1 id "{{  vlan_id  }}" ip4 "{{  ip4addr  }}"     
+      tags:
+        - set-client-vlan-ip
+      notify:
+        - restart_network
+        - reload_network_interface
+  handlers:
+    - include: handlers/restart_network.yml
+    - include: handlers/reload_network_interface.yml
+
+      
+- name:  Routers Config| Routers Network Configuration
+  hosts: Routers
   become: yes
   vars:
-    inetRouter_ip: 192.168.255.1/30
-    nmcli_team:
-     - conn_name: Team0
-       ip4: '{{ inetRouter_ip }}'
     nmcli_team_slave:
       - conn_name: eth1
         ifname: eth1
@@ -35,12 +49,10 @@
     - name: Add a Team connection with static IP configuration
       nmcli:
         type: team
-        conn_name: '{{ item.conn_name }}'
-        ip4: '{{ item.ip4 }}'
+        conn_name: Team0
+        ip4: '{{ ip4addr }}'
         state: present
-      with_items:
-      - '{{ nmcli_team }}'
-
+  
     - name: Try nmcli add team-slave
       nmcli:
         type: team-slave
@@ -56,79 +68,7 @@
         - restart_network
         - reload_network_interface
   handlers:
-    - name: restart_network
-      systemd:
-        name: NetworkManager
-        state: restarted
-        enabled: yes
-    - name: reload_network_interface
-      shell: nmcli con reload
+    - include: handlers/restart_network.yml
+    - include: handlers/reload_network_interface.yml
 
-- name:  testClientsConfig| testClients Network Configuration
-  hosts: testClient1 testClient2
-  become: yes
-  vars:
-    testClientIp: "10.10.10.1/24"
-    vlan1_id: "vlan100"
-    vlan2_id: "vlan101"
-  tasks:
-    - name: Try to set ip  
-      nmcli:
-        type: ethernet
-        conn_name: eth1
-        ifname: eth1
-        ip4: "{{  testClientIp  }}"
-        state: present
-      tags:
-        - set-client-ip
-      notify:
-        - restart_network
-        - reload_network_interface
-  handlers:
-    - name: restart_network
-      systemd:
-        name: NetworkManager
-        state: restarted
-        enabled: yes
-    - name: reload_network_interface
-      shell: nmcli con reload 
-      
-- name:  testServersConfig| testServers Network Configuration
-  hosts: testServer1 testServer2
-  become: yes
-  vars:
-    testServerIp: "10.10.10.254/24"
-    vlan1_id: "vlan100"
-    vlan2_id: "vlan101"
-    net_libs: NetworkManager-glib
-  tasks:
-    - name: install needed network manager libs
-      yum:
-        name: "{{ net_libs }}"
-        state: installed
-      with_items:
-        - NetworkManager-glib
-        - libnm-qt-devel.x86_64
-        - nm-connection-editor.x86_64
-        - libsemanage-python
-        - policycoreutils-python
-    - name: Try to set ip  
-      nmcli:
-        type: ethernet
-        conn_name: eth1
-        ifname: eth1
-        ip4: "{{  testServerIp  }}"
-        state: present
-      tags:
-        - set-client-ip
-      notify:
-        - restart_network
-        - reload_network_interface
-  handlers:
-    - name: restart_network
-      systemd:
-        name: NetworkManager
-        state: restarted
-        enabled: yes
-    - name: reload_network_interface
-      shell: nmcli con reload 
+
