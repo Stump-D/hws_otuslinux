@@ -1,6 +1,8 @@
 ---
-- name: reload_network_interface
+- name: reload network interface
+  become: yes
   shell: 
     nmcli con reload
-    /etc/init.d/network restart
+
+
 

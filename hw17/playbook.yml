@@ -27,41 +27,42 @@
       tags:
         - set-client-vlan-ip
       notify:
-        - restart_network
-        - reload_network_interface
+        - reload network interface
+        - restart NetworkManager
+        - restart Network
+
+
   handlers:
-    - include: handlers/restart_network.yml
     - include: handlers/reload_network_interface.yml
+    - include: handlers/restart_network_manager.yml
+    - include: handlers/restart_network.yml
+    
       
 - name:  Routers Config| Routers Network Configuration
   hosts: Routers
   become: yes
   vars:
-    team: Team0
+    team_name: Team0
+    nmcli_team:
+      - conn_name: "{{ team_name }}"
+        ip4: "{{ ip4addr }}"
     nmcli_team_slave:
-      - conn_name: eth1
+      - conn_name: Team-Port0
         ifname: eth1
-        master: "{{ team }}"
-      - conn_name: eth2
+        master: "{{ team_name }}"
+      - conn_name: Team-Port1
         ifname: eth2
-        master: "{{ team }}"
+        master: "{{ team_name }}"
   tasks:
     - name: Add a Team connection with static IP configuration
       nmcli:
         type: team
-        mode: active-backup
-        conn_name: "{{  team }}"
-        ip4: '{{ ip4addr }}'
+        mode: balance-alb
+        conn_name: '{{ item.conn_name }}'
+        ip4: '{{ item.ip4 }}'
         state: present
-     
-    - name: Try to set runner for Team0 
-      shell:
-        nmcli connection modify "{{ team }}" team.runner activebackup   
-      tags:
-        - set-team-mode
-      notify:
-        - restart_network
-        - reload_network_interface
+      with_items:
+        - '{{ nmcli_team }}'
         
     - name: Try nmcli add team-slave
       nmcli:
@@ -75,10 +76,14 @@
       tags:
         - add team-slave
       notify:
-        - restart_network
-        - reload_network_interface
+        - reload network interface
+        - restart NetworkManager
+        - restart Network
+
+
   handlers:
-    - include: handlers/restart_network.yml
     - include: handlers/reload_network_interface.yml
+    - include: handlers/restart_network_manager.yml
+    - include: handlers/restart_network.yml
 
 
