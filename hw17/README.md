@@ -25,5 +25,14 @@ testClient2 <-> testServer2
 
 ## **Выполнено:**
 
+1. Поднимаем стенд ```vagrnt up``` с машинами :
+- inetRouter                running (virtualbox)
+- centralRouter             running (virtualbox)
+- testServer1               running (virtualbox)
+- testClient1               running (virtualbox)
+- testServer2               running (virtualbox)
+- testClient2               running (virtualbox)
+
+
 
 
