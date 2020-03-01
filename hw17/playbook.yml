@@ -57,7 +57,6 @@
     - name: Add a Team connection with static IP configuration
       nmcli:
         type: team
-        mode: balance-alb
         conn_name: '{{ item.conn_name }}'
         ip4: '{{ item.ip4 }}'
         state: present
@@ -66,7 +65,7 @@
         
     - name: Try nmcli add team-slave
       nmcli:
-        type: team-slave
+        type: ethernet
         conn_name: '{{ item.conn_name }}'
         ifname: '{{ item.ifname }}'
         master: '{{ item.master }}'
@@ -75,6 +74,12 @@
         - '{{ nmcli_team_slave }}'
       tags:
         - add team-slave
+
+    - name: Try to set runner for Team
+      shell:
+        nmcli connection modify "{{ team_name }}" team.runner loadbalance
+      tags:
+        - set-team-mode
       notify:
         - reload network interface
         - restart NetworkManager
