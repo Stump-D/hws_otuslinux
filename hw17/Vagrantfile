@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
 
   MACHINES.each do |boxname, boxconfig|
   
-    config.vm.synced_folder '.', '/vagrant', disabled: true
+#    config.vm.synced_folder '.', '/vagrant', disabled: true
     config.vm.define boxname do |box|
 
         box.vm.box = boxconfig[:box_name]
@@ -70,7 +70,7 @@ Vagrant.configure("2") do |config|
         box.vm.provision "shell", inline: <<-SHELL
           mkdir -p ~root/.ssh
           cp ~vagrant/.ssh/auth* ~root/.ssh
-          yum install -y tcpdump
+          yum install -y teamd tcpdump
         SHELL
         
         case boxname.to_s

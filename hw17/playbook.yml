@@ -2,20 +2,15 @@
 - name:  install needed network manager libs
   hosts: all
   become: yes
-  vars:
-    net_libs: NetworkManager-glib
   tasks:
     - name: install needed network manager libs
-      yum:
-        name: "{{ net_libs }}"
-        state: installed
-      with_items:
-        - NetworkManager-glib
-        - libnm-qt-devel.x86_64
-        - nm-connection-editor.x86_64
-        - libsemanage-python
-        - policycoreutils-python
-
+      package:
+        name:
+          - NetworkManager-glib
+          - nm-connection-editor
+          - libsemanage-python
+          - policycoreutils-python
+        state: present
 
 - name:  Isolated Config| testClients & testServers Network Configuration
   hosts: Isolated
@@ -29,24 +24,52 @@
       notify:
         - reload network interface
         - restart NetworkManager
-        - restart Network
-
 
   handlers:
     - include: handlers/reload_network_interface.yml
     - include: handlers/restart_network_manager.yml
     - include: handlers/restart_network.yml
     
+- name:  centralRouter Config
+  hosts: centralRouter
+  become: yes
+  vars:
+    vlans:
+      - vlan_name: vlan100
+        ifname: eth3
+        vlan_id: 100
+      - vlan_name: vlan101
+        ifname: eth3
+        vlan_id: 101
+  tasks:
+    - name: Try to set vlan centralRouter
+      shell:
+        nmcli con add type vlan con-name "{{ item.vlan_name }}"  dev "{{ item.ifname }}"  id "{{ item.vlan_id }}"      
+      tags:
+        - set-centralRouter-vlan
+      with_items:
+        - '{{ vlans }}'
+        
+      notify:
+        - reload network interface
+        - restart NetworkManager
+
+  handlers:
+    - include: handlers/reload_network_interface.yml
+    - include: handlers/restart_network_manager.yml
+    - include: handlers/restart_network.yml
+
       
 - name:  Routers Config| Routers Network Configuration
   hosts: Routers
   become: yes
   vars:
     team_name: Team0
-    nmcli_team:
+    nmcli_bond:
       - conn_name: "{{ team_name }}"
         ip4: "{{ ip4addr }}"
-    nmcli_team_slave:
+        mode: balance-rr
+    nmcli_bond_slave:
       - conn_name: Team-Port0
         ifname: eth1
         master: "{{ team_name }}"
@@ -54,41 +77,31 @@
         ifname: eth2
         master: "{{ team_name }}"
   tasks:
-    - name: Add a Team connection with static IP configuration
+    - name: Try nmcli add bond - conn_name only & ip4 gw4 mode
       nmcli:
-        type: team
+        type: bond
         conn_name: '{{ item.conn_name }}'
         ip4: '{{ item.ip4 }}'
+        mode: '{{ item.mode }}'
         state: present
       with_items:
-        - '{{ nmcli_team }}'
-        
-    - name: Try nmcli add team-slave
+        - '{{ nmcli_bond }}'
+
+    - name: Try nmcli add bond-slave
       nmcli:
-        type: ethernet
+        type: bond-slave
         conn_name: '{{ item.conn_name }}'
         ifname: '{{ item.ifname }}'
         master: '{{ item.master }}'
         state: present
       with_items:
-        - '{{ nmcli_team_slave }}'
-      tags:
-        - add team-slave
+        - '{{ nmcli_bond_slave }}'
 
-    - name: Try to set runner for Team
-      shell:
-        nmcli connection modify "{{ team_name }}" team.runner loadbalance
-      tags:
-        - set-team-mode
       notify:
         - reload network interface
         - restart NetworkManager
-        - restart Network
-
 
   handlers:
     - include: handlers/reload_network_interface.yml
     - include: handlers/restart_network_manager.yml
     - include: handlers/restart_network.yml
-
-
