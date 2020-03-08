@@ -1,0 +1,54 @@
+---
+- name:  Configurate hosts for vpn tun test 
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install epel-release
+      package:
+        name:
+          - epel-release
+        state: present
+      tags:
+        - epel-installation
+
+
+    - name: Install needed packages
+      package:
+        name:
+          - openvpn 
+          - iperf3 
+          - easy-rsa
+          - tcpdump
+        state: present
+      tags:
+        - install-packages
+
+    
+- name:  Configurate server for vpn tun test 
+  hosts: server
+  become: yes
+  tasks:
+    - name: Generate static key 
+      shell:
+        openvpn --genkey --secret /etc/openvpn/static.key
+      tags:
+        - openvpn-key-generation
+
+    - name: Create openvpn config file from template
+      template:
+        src: templates/server.conf.j2
+        dest: /etc/openvpn/server.conf
+        owner: root
+        group: root
+      notify:
+        - restart_openvpn
+      tags:
+        - openvpn-configuration
+
+  handlers:
+    - name: restart_openvpn
+      systemd:
+        name: openvpn@server
+        state: restarted
+        enabled: yes
+

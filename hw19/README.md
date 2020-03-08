@@ -12,3 +12,4 @@
 
 ## **Выполнено:**
 
+semanage port -a -t openvpn_port_t -p udp 3876

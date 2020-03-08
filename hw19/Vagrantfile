@@ -1,69 +1,36 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
-# -*- mode: ruby -*-
-# vim: set ft=ruby :
 
 MACHINES = {
-:testHost1 => {
+  :server => {
         :box_name => "centos/7",
-        #:public => {:ip => '10.10.10.1', :adapter => 1},
-        :net => [
-                   {adapter: 2, auto_config: false, virtualbox__intnet: true},
-                ]
+        :ip_addr => '192.168.10.10',
+        :hostname => 'server.loc'
   },
-  :testHost2 => {
+  :client => {
         :box_name => "centos/7",
-        :net => [
-                   {adapter: 2, auto_config: false, virtualbox__intnet: true},
-                ]
+        :ip_addr => '192.168.10.20',
+        :hostname => 'client.loc'        
   },
-
 }
 
 Vagrant.configure("2") do |config|
 
   MACHINES.each do |boxname, boxconfig|
-  
-    config.vm.synced_folder '.', '/vagrant', disabled: true
-    config.vm.define boxname do |box|
+      
+      config.vm.synced_folder '.', '/vagrant', disabled: true
+      config.vm.define boxname do |box|
 
-        box.vm.box = boxconfig[:box_name]
-        box.vm.host_name = boxname.to_s
-        
+          box.vm.box = boxconfig[:box_name]
+          box.vm.host_name = boxconfig[:hostname]
 
-        boxconfig[:net].each do |ipconf|
-          box.vm.network "private_network", ipconf
-        end
-        
-        if boxconfig.key?(:public)
-          box.vm.network "public_network", boxconfig[:public]
-        end
+          box.vm.network "private_network", ip: boxconfig[:ip_addr]
 
-        box.vm.provision "shell", inline: <<-SHELL
-          mkdir -p ~root/.ssh
-          cp ~vagrant/.ssh/auth* ~root/.ssh
-          yum install -y tcpdump
-        SHELL
-        
-        case boxname.to_s
-        when "testHost1"
-          box.vm.provision "shell", run: "always", inline: <<-SHELL
-            set -x
-            echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-            sysctl -p
-            SHELL
-        when "testHost2"
-          box.vm.provision "shell", run: "always", inline: <<-SHELL
-            set -x
-            echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-            sysctl -p
-            SHELL
-            
-        end
+          box.vm.provision "shell", inline: <<-SHELL
+            #yum -y install tcpdump epel-release openvpn iperf3 easy-rsa
+            setenforce 0
+          SHELL
+
       end
-
   end
-  
-  
 end
-
