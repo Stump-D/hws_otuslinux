@@ -18,10 +18,17 @@
           - iperf3 
           - easy-rsa
           - tcpdump
+          - policycoreutils-python
         state: present
       tags:
         - install-packages
-
+        
+    - name: Allow openvpn to listen on udp port 1194
+      seport:
+        ports: 1194
+        proto: udp
+        setype: openvpn_port_t
+        state: present
     
 - name:  Configurate server for vpn tun test 
   hosts: server
@@ -33,7 +40,7 @@
       tags:
         - static-key-generation
 
-    - name: Fetch the file from the server to master
+    - name: Fetch the static.key from the server to master
       fetch: 
         src=/etc/openvpn/static.key 
         dest=buffer/
