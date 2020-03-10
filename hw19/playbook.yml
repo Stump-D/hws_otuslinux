@@ -22,19 +22,23 @@
       tags:
         - install-packages
 
-    - name: Copy static key 
-      template:
-        src: templates/static.key
-        dest: /etc/openvpn/static.key
-        owner: root
-        group: root
-      tags:
-        - static-key-deploy
     
 - name:  Configurate server for vpn tun test 
   hosts: server
   become: yes
   tasks:
+    - name: Create static key 
+      shell:
+        openvpn --genkey --secret /etc/openvpn/static.key
+      tags:
+        - static-key-generation
+
+    - name: Fetch the file from the server to master
+      fetch: 
+        src=/etc/openvpn/static.key 
+        dest=buffer/
+        flat=yes
+
     - name: Create openvpn config file from template
       template:
         src: templates/server.conf.j2
@@ -48,10 +52,16 @@
   handlers:
     - include: handlers/restart_openvpn.yml
 
+
 - name:  Configurate client for vpn tun test 
   hosts: client
   become: yes
   tasks:
+    - name: Copy the file from master to client
+      copy:
+        src=buffer/static.key
+        dest=/etc/openvpn/
+
     - name: Create openvpn config file from template
       template:
         src: templates/client.conf.j2
@@ -62,5 +72,6 @@
         - restart_openvpn
       tags:
         - openvpn-client-configuration
+
   handlers:
     - include: handlers/restart_openvpn.yml
