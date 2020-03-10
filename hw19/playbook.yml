@@ -11,7 +11,6 @@
       tags:
         - epel-installation
 
-
     - name: Install needed packages
       package:
         name:
@@ -23,17 +22,19 @@
       tags:
         - install-packages
 
+    - name: Copy static key 
+      template:
+        src: templates/static.key
+        dest: /etc/openvpn/static.key
+        owner: root
+        group: root
+      tags:
+        - static-key-deploy
     
 - name:  Configurate server for vpn tun test 
   hosts: server
   become: yes
   tasks:
-    - name: Generate static key 
-      shell:
-        openvpn --genkey --secret /etc/openvpn/static.key
-      tags:
-        - openvpn-key-generation
-
     - name: Create openvpn config file from template
       template:
         src: templates/server.conf.j2
@@ -43,12 +44,23 @@
       notify:
         - restart_openvpn
       tags:
-        - openvpn-configuration
-
+        - openvpn-server-configuration
   handlers:
-    - name: restart_openvpn
-      systemd:
-        name: openvpn@server
-        state: restarted
-        enabled: yes
+    - include: handlers/restart_openvpn.yml
 
+- name:  Configurate client for vpn tun test 
+  hosts: client
+  become: yes
+  tasks:
+    - name: Create openvpn config file from template
+      template:
+        src: templates/client.conf.j2
+        dest: /etc/openvpn/server.conf
+        owner: root
+        group: root
+      notify:
+        - restart_openvpn
+      tags:
+        - openvpn-client-configuration
+  handlers:
+    - include: handlers/restart_openvpn.yml
