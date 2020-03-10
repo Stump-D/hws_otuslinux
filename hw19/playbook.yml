@@ -38,6 +38,8 @@
         src=/etc/openvpn/static.key 
         dest=buffer/
         flat=yes
+      tags:
+        - fetch-static.key
 
     - name: Create openvpn config file from template
       template:
@@ -61,6 +63,8 @@
       copy:
         src=buffer/static.key
         dest=/etc/openvpn/
+      tags:
+        - get-static.key
 
     - name: Create openvpn config file from template
       template:
