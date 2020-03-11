@@ -15,5 +15,5 @@
 
 2. Поднимаем стенд ```vagrant up``` с машинами :
 
-server                    running (virtualbox)
-client                    running (virtualbox)
+- server                    running (virtualbox)
+- client                    running (virtualbox)
