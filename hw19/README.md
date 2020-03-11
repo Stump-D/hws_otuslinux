@@ -111,6 +111,7 @@ ansible-playbook playbook.yml
 
 8. Подключаемся к openvpn серверу с хост-машины и проверяем:
 ```
+cd client
 openvpn --config client.conf --daemon
 ping -c 4 10.10.10.1
  PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
