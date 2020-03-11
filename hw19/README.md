@@ -100,3 +100,36 @@ iperf Done.
 ```
 
 Большой разницы в скорости не обнаруживается, только при tun больше Retr в 1.5 раза.
+
+7. Поднимаем стенд RAS на базе OpenVPN
+```
+vagrant halt
+cd ras
+vagrant up
+ansible-playbook playbook.yml
+```
+
+8. Подключаемся к openvpn серверу с хост-машины и проверяем:
+```
+openvpn --config client.conf --daemon
+ping -c 4 10.10.10.1
+ PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
+ 64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=0.944 ms
+ 64 bytes from 10.10.10.1: icmp_seq=2 ttl=64 time=1.15 ms
+ 64 bytes from 10.10.10.1: icmp_seq=3 ttl=64 time=1.01 ms
+ 64 bytes from 10.10.10.1: icmp_seq=4 ttl=64 time=0.648 ms
+ 
+ --- 10.10.10.1 ping statistics ---
+ 4 packets transmitted, 4 received, 0% packet loss, time 3004ms
+ rtt min/avg/max/mdev = 0.648/0.940/1.152/0.187 ms
+
+[root@4otus ras]# ip r
+default via 192.168.0.250 dev eno1 proto dhcp metric 100
+10.10.10.0/24 via 10.10.10.5 dev tun0
+10.10.10.5 dev tun0 proto kernel scope link src 10.10.10.6
+192.168.0.0/24 dev eno1 proto kernel scope link src 192.168.0.243 metric 100
+192.168.10.0/24 dev vboxnet1 proto kernel scope link src 192.168.10.1
+```
+ 
+ 
+
