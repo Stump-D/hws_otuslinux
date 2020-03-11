@@ -11,5 +11,9 @@
 3*. Самостоятельно изучить, поднять ocserv и подключиться с хоста к виртуалке
 
 ## **Выполнено:**
+1. Проверяем, что в файле group_vars\all.yml переменной net_dev присвоено значение **tap** (Layer2)
 
-semanage port -a -t openvpn_port_t -p udp 3876
+2. Поднимаем стенд ```vagrant up``` с машинами :
+
+server                    running (virtualbox)
+client                    running (virtualbox)
