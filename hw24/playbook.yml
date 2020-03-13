@@ -16,3 +16,17 @@
         state: present
       tags:
         - install-percona-server
+        
+    - name: Copy MySQL conf files 
+      copy:
+        src: conf/conf.d/
+        dest: /etc/my.cnf.d/
+        owner: root
+        group: root
+        #directory_mode
+        mode: '0644'
+
+    - name: Start MySQL
+      systemd:
+        name: mysql
+        state: started
