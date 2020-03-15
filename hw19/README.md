@@ -143,7 +143,6 @@ listening on tun0, link-type RAW (Raw IP), capture size 262144 bytes
 12:57:58.987352 ip: 10.10.10.1 > client.loc: ICMP echo request, id 25504, seq 14, length 64
 ```
 
-**tun devices encapsulate IPv4 or IPv6 (OSI Layer 3) while tap devices encapsulate Ethernet 802.3 (OSI Layer 2).**
 
 
 7. Поднимаем стенд RAS на базе OpenVPN
@@ -178,5 +177,7 @@ default via 192.168.0.250 dev eno1 proto dhcp metric 100
 192.168.10.0/24 dev vboxnet1 proto kernel scope link src 192.168.10.1
 ```
  
- 
+[Reference manual for OpenVPN 2.4](https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/)
+
+**tun devices encapsulate IPv4 or IPv6 (OSI Layer 3) while tap devices encapsulate Ethernet 802.3 (OSI Layer 2).**
 
