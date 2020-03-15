@@ -49,6 +49,28 @@ Connecting to host 10.10.10.1, port 5201
 iperf Done.
 ```
 
+4.1. На openvpn сервере запускаем: 
+```
+[vagrant@server ~]$ ping 10.10.10.2
+PING 10.10.10.2 (10.10.10.2) 56(84) bytes of data.
+64 bytes from 10.10.10.2: icmp_seq=1 ttl=64 time=0.812 ms
+64 bytes from 10.10.10.2: icmp_seq=2 ttl=64 time=0.569 ms
+64 bytes from 10.10.10.2: icmp_seq=3 ttl=64 time=0.574 ms
+```
+4.2. Проверяем, что tap работает на Layer2:
+```
+[root@client vagrant]# tcpdump -i tap0 -q -e
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on tap0, link-type EN10MB (Ethernet), capture size 262144 bytes
+13:02:48.438640 4e:1d:24:4d:13:46 (oui Unknown) > c2:5c:3a:68:19:8a (oui Unknown), IPv4, length 98: 10.10.10.1 > client.loc: ICMP echo request, id 26940, seq 13, length 64
+13:02:48.438659 c2:5c:3a:68:19:8a (oui Unknown) > 4e:1d:24:4d:13:46 (oui Unknown), IPv4, length 98: client.loc > 10.10.10.1: ICMP echo reply, id 26940, seq 13, length 64
+13:02:49.438593 4e:1d:24:4d:13:46 (oui Unknown) > c2:5c:3a:68:19:8a (oui Unknown), IPv4, length 98: 10.10.10.1 > client.loc: ICMP echo request, id 26940, seq 14, length 64
+13:02:49.438613 c2:5c:3a:68:19:8a (oui Unknown) > 4e:1d:24:4d:13:46 (oui Unknown), IPv4, length 98: client.loc > 10.10.10.1: ICMP echo reply, id 26940, seq 14, length 64
+13:02:50.438630 4e:1d:24:4d:13:46 (oui Unknown) > c2:5c:3a:68:19:8a (oui Unknown), IPv4, length 98: 10.10.10.1 > client.loc: ICMP echo request, id 26940, seq 15, length 64
+13:02:50.438649 c2:5c:3a:68:19:8a (oui Unknown) > 4e:1d:24:4d:13:46 (oui Unknown), IPv4, length 98: client.loc > 10.10.10.1: ICMP echo reply, id 26940, seq 15, length 64
+```
+                                                                                                        
+
 5. Меняем в файле group_vars\all.yml значение переменной net_dev на **tun** (Layer3) и 
 выполняем провижн стенда ```vagrant provision```
 
@@ -101,6 +123,29 @@ iperf Done.
 
 Большой разницы в скорости не обнаруживается, только при tun больше Retr в 1.5 раза.
 
+6.1. На openvpn сервере запускаем: 
+```
+[vagrant@server ~]$ ping 10.10.10.2
+PING 10.10.10.2 (10.10.10.2) 56(84) bytes of data.
+64 bytes from 10.10.10.2: icmp_seq=1 ttl=64 time=0.812 ms
+64 bytes from 10.10.10.2: icmp_seq=2 ttl=64 time=0.569 ms
+64 bytes from 10.10.10.2: icmp_seq=3 ttl=64 time=0.574 ms
+```
+6.2. Проверяем, что tun работает только на Layer3:
+```
+[root@client vagrant]# tcpdump -i tun0 -q -e
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on tun0, link-type RAW (Raw IP), capture size 262144 bytes
+12:57:56.985277 ip: 10.10.10.1 > client.loc: ICMP echo request, id 25504, seq 12, length 64
+12:57:56.985297 ip: client.loc > 10.10.10.1: ICMP echo reply, id 25504, seq 12, length 64
+12:57:57.986277 ip: 10.10.10.1 > client.loc: ICMP echo request, id 25504, seq 13, length 64
+12:57:57.986297 ip: client.loc > 10.10.10.1: ICMP echo reply, id 25504, seq 13, length 64
+12:57:58.987352 ip: 10.10.10.1 > client.loc: ICMP echo request, id 25504, seq 14, length 64
+```
+
+**tun devices encapsulate IPv4 or IPv6 (OSI Layer 3) while tap devices encapsulate Ethernet 802.3 (OSI Layer 2).**
+
+
 7. Поднимаем стенд RAS на базе OpenVPN
 ```
 vagrant halt
@@ -112,7 +157,7 @@ ansible-playbook playbook.yml
 8. Подключаемся к openvpn серверу с хост-машины и проверяем:
 ```
 [root@4otus ras]# cd client
-[root@4otus client]# openvpn --config client.conf
+[root@4otus client]# openvpn --config client.conf --daemon
 
 ping -c 4 10.10.10.1
  PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.

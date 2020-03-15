@@ -30,6 +30,11 @@
         setype: openvpn_port_t
         state: present
     
+    - name: Change the openvpn_t server to permissive
+      selinux_permissive:
+        name: openvpn_t
+        permissive: true
+    
 - name:  Configurate server for vpn tun test 
   hosts: server
   become: yes
@@ -56,10 +61,12 @@
         group: root
       notify:
         - restart_openvpn
+        - reboot_host
       tags:
         - openvpn-server-configuration
   handlers:
     - include: handlers/restart_openvpn.yml
+    - include: handlers/reboot.yml
 
 
 - name:  Configurate client for vpn tun test 
@@ -81,8 +88,10 @@
         group: root
       notify:
         - restart_openvpn
+        - reboot_host
       tags:
         - openvpn-client-configuration
 
   handlers:
     - include: handlers/restart_openvpn.yml
+    - include: handlers/reboot.yml
