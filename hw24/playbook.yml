@@ -7,15 +7,13 @@
       yum:
         name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
         state: present
-      tags:
-        - install-percona-release
 
-    - name: Install percona server
+    - name: Install Percona server and MySQL-python module
       yum:
-        name: Percona-Server-server-57
+        name: 
+          - Percona-Server-server-57
+          - MySQL-python
         state: present
-      tags:
-        - install-percona-server
         
     - name: Copy MySQL conf files 
       copy:
@@ -24,6 +22,25 @@
         owner: root
         group: root
         mode: '0644'
+
+    - name: Copy 01-base.cnf file 
+      template:
+        src: templates/01-base.cnf.j2
+        dest: /etc/my.cnf.d/01-base.cnf
+        owner: root
+        group: root
+        mode: '0644'
+        
+    - name: Modify slave config
+      lineinfile:
+        path: "{{ item.path }}"
+        line: "{{ item.line }}"
+        regexp: "{{ item.regexp }}"
+        state: present
+      with_items:
+        - { path: "/etc/my.cnf.d/05-binlog.cnf", regexp: "^replicate-ignore-table=bet.events_on_demand", line: "replicate-ignore-table=bet.events_on_demand" }
+        - { path: "/etc/my.cnf.d/05-binlog.cnf", regexp: "^replicate-ignore-table=bet.v_same_event", line: "replicate-ignore-table=bet.v_same_event" }
+      when: role is defined and role == 'slave'
 
     - name: Start MySQL
       systemd:
@@ -45,11 +62,76 @@
         mysql --connect-expired-password -uroot -p'{{ current_password.stdout }}' -e 'ALTER USER USER() IDENTIFIED BY "{{ mysql_password }}"'
       ignore_errors: yes
 
-    - name: Copy bet.dmp 
-      copy:
-        src: bet.dmp
-        dest: /vagrant
-        owner: root
-        group: root
-        mode: '0644'
-      when: role is defined and role == 'master'
+    - name: Copy my.cnf
+      template:
+        src: templates/.my.cnf.j2
+        dest: /root/.my.cnf
+        mode: 0600
+
+- name:  Configure master
+  hosts: master
+  become: yes
+  tasks:
+              
+  - name: Create a bet DB
+    mysql_db:
+      login_user: root
+      login_password: "{{ mysql_password }}"
+      name: bet
+      state: present
+
+  - name: Import bet database
+    mysql_db:
+      login_user: root
+      login_password: "{{ mysql_password }}"
+      name: bet
+      state: import
+      target: /vagrant/bet.dmp
+
+  - name: Create database user for replication with all database privileges
+    mysql_user:
+      login_user: root
+      login_password: "{{ mysql_password }}"
+      name: "{{ replication_user }}"
+      password: "{{ replication_password }}"
+      host: '%'
+      priv: '*.*:ALL'
+      state: present
+
+  - name: Dump database for slave
+    shell:
+      mysqldump --defaults-file=/root/.my.cnf --all-databases --triggers --routines --master-data --ignore-table=bet.events_on_demand --ignore-table=bet.v_same_event > master.sql
+
+  - name: Store master.sql
+    fetch:
+      src: master.sql
+      dest: .
+
+- name:  Configure slave
+  hosts: slave
+  become: yes
+  tasks:
+  
+  - name: Copy master.sql
+    copy:
+      src: master/master.sql
+      dest: /home/vagrant
+
+#  - name: Create a bet DB
+#    mysql_db:
+#      login_user: root
+#      login_password: "{{ mysql_password }}"
+#      name: bet
+#      state: present
+
+#  - name: Load dump database for slave
+#    shell:
+#      mysql --defaults-file=/root/.my.cnf -D bet <  /home/vagrant/master.sql
+#    ignore_errors: yes      
+
+  - name: Setup and run slave
+    shell: |
+      mysql -uroot -p'{{ mysql_password }}' -e 'CHANGE MASTER TO MASTER_HOST="192.168.11.150", MASTER_USER="{{ replication_user }}", MASTER_PASSWORD="{{ replication_password }}", MASTER_AUTO_POSITION=1;'
+      mysql -uroot -p'{{ mysql_password }}' -e 'START SLAVE;'
+
+
