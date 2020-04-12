@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  web:
+    image: stump773/my-nginx-image:0.2
+    ports:
+      - 80:80
+    volumes:
+      - ./www:/var/www/html
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - front_end
+  phpfpm:
+    image: stump773/php-fpm:0.1
+    volumes:
+      - ./www:/var/www/html
+    networks:
+      - front_end
+
+networks:
+  front_end:
