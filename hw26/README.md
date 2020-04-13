@@ -10,7 +10,19 @@
 
 ## **Выполнено:**
 
-1. Поднимаем кластер
+1.Настраиваем selinux для разрешения запуска scripts/setupCluster.js
+```
+semanage fcontext -l |grep mysql
+chcon -t mysqld_exec_t ./scripts/setupCluster.js
+```
+
+либо привычным способом :)
+```
+setenforce 0
+```
+
+
+2. Поднимаем кластер
 ```
 docker-compose up
 
@@ -22,13 +34,14 @@ mysql-server-3_1  | 2020-04-12T20:09:47.339195Z 18 [System] [MY-010597] [Repl] '
 hw26_mysql-shell_1 exited with code 0
 ```
 
-2. Проверяем:
+3. Проверяем:
 
 При необходимости ставим  mysql-shell:
 ```
 rpm -i https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
 yum install mysql-shell
 ```
+
 
 Собственно запускаем сам mysql-shell
 ```
