@@ -4,6 +4,10 @@
   become: yes
   vars:
     postgresql_repo: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    postgresql_packages:
+      - postgresql11
+      - postgresql11-server
+      - postgresql11-contrib    
   tasks:
     - name: Install epel-release
       yum:
@@ -19,4 +23,24 @@
       package:
         name: "{{ postgresql_packages }}"
         state: present
-        notify: PostgreSQL service enable
+    
+    - name: PostgreSQL database init
+      command: /usr/pgsql-11/bin/postgresql-11-setup initdb
+      notify: 
+        - Restart PostgreSQL
+
+  handlers:
+    - name: Enable PostgreSQL
+      systemd:
+        name: postgresql-11
+        
+    - name: Restart PostgreSQL
+      systemd:
+        name: postgresql-11
+        state: restarted
+        enabled: yes
+    
+    - name: Reload PostgreSQL
+      systemd:
+        name: postgresql-11
+        state: reloaded
