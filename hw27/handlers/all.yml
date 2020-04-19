@@ -2,6 +2,7 @@
 - name: Enable PostgreSQL
   systemd:
     name: "{{ postgresql_service }}"
+    enabled: yes
 
 - name: Restart PostgreSQL
   systemd:
