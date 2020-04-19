@@ -8,7 +8,14 @@
       - postgresql11
       - postgresql11-server
       - postgresql11-contrib
-    postgresql_service: postgresql-11 
+      - python-psycopg2
+    postgresql_version: "11"
+    postgresql_service: postgresql-11
+    postgresql_bin_path: "/usr/pgsql-11/bin"
+    postgresql_data_dir: "/var/lib/pgsql/11/data"
+    postgresql_config_path: "/var/lib/pgsql/11/data"
+    physical_replication_slot: standby_slot
+
   tasks:
     - name: Install epel-release
       yum:
@@ -24,13 +31,54 @@
       package:
         name: "{{ postgresql_packages }}"
         state: present
+        
+
+    - name: Check if PostgreSQL database is initialized.
+      stat:
+       path: "{{ postgresql_data_dir }}"
+      register: pgdata_dir_version
+      when: role is defined and role == "master"
     
+    - debug:
+        msg: 
+        - "{{ pgdata_dir_version }}"
+        
     - name: PostgreSQL database init
-      command: /usr/pgsql-11/bin/postgresql-11-setup initdb
+      command: "{{ postgresql_bin_path }}/postgresql-11-setup initdb"
+      when: not pgdata_dir_version.stat.exists
+      become: true
       notify: 
         - Restart PostgreSQL
+
+
+    - name: Run PostgreSQL
+      systemd:
+        name: "{{ postgresql_service }}"
+        state: started
+        enabled: yes
       when: role is defined and role == "master"
-      ignore_errors: yes
+
+    - name: Create physical slot for replication if doesn't exist
+      become_user: postgres
+      postgresql_slot:
+        slot_name: "{{ physical_replication_slot }}"
+      when: role is defined and role == "master"
+
       
   handlers:
-    - include: handlers/all.yml
+    - name: Enable PostgreSQL
+      systemd:
+        name: "{{ postgresql_service }}"
+        enabled: yes
+
+    - name: Restart PostgreSQL
+      systemd:
+        name: "{{ postgresql_service }}"
+        state: restarted
+        enabled: yes
+
+    - name: Reload PostgreSQL
+      systemd:
+        name: "{{ postgresql_service }}"
+        state: reloaded
+
