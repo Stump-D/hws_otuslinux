@@ -7,7 +7,8 @@
     postgresql_packages:
       - postgresql11
       - postgresql11-server
-      - postgresql11-contrib    
+      - postgresql11-contrib
+    postgresql_service: postgresql-11 
   tasks:
     - name: Install epel-release
       yum:
@@ -28,19 +29,8 @@
       command: /usr/pgsql-11/bin/postgresql-11-setup initdb
       notify: 
         - Restart PostgreSQL
-
+      when: role is defined and role == "master"
+      ignore_errors: yes
+      
   handlers:
-    - name: Enable PostgreSQL
-      systemd:
-        name: postgresql-11
-        
-    - name: Restart PostgreSQL
-      systemd:
-        name: postgresql-11
-        state: restarted
-        enabled: yes
-    
-    - name: Reload PostgreSQL
-      systemd:
-        name: postgresql-11
-        state: reloaded
+    - include: handlers/all.yml

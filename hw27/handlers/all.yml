@@ -1,15 +1,16 @@
 ---
 - name: Enable PostgreSQL
   systemd:
-    name: postgresql-11
-    enabled: Yes
+    name: "{{ postgresql_service }}"
 
 - name: Restart PostgreSQL
   systemd:
-    name: postgresql-11
+    name: "{{ postgresql_service }}"
     state: restarted
+    enabled: yes
 
 - name: Reload PostgreSQL
   systemd:
-    name: postgresql-11
+    name: "{{ postgresql_service }}"
     state: reloaded
+
