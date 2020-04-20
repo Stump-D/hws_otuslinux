@@ -9,6 +9,7 @@
       - postgresql11-server
       - postgresql11-contrib
       - python-psycopg2
+      - unzip
 
   tasks:
     - name: Install epel-release
@@ -37,7 +38,13 @@
     postgresql_data_dir: "/var/lib/pgsql/11/data/"
     postgresql_config_path: "/var/lib/pgsql/11/data"
     physical_replication_slot: standby_slot
-
+    replica_username: replica
+    replica_password: Pass@Word@Rep
+    barman_username: barman
+    barman_password: Pass@Word@Bar
+    barman_stream: barman_stream
+    barman_stream_password: Pass@Word@Str
+    
   tasks:
     - name: PostgreSQL database init
       command: "{{ postgresql_bin_path }}/postgresql-11-setup initdb"
@@ -54,7 +61,53 @@
       become_user: postgres
       postgresql_slot:
         slot_name: "{{ physical_replication_slot }}"
-      
+
+    - name: Create database users
+      postgresql_user:
+        db: postgres
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        role_attr_flags: "{{ item.flags }}"
+      become: true
+      become_user: postgres
+      with_items:
+        - { name: "{{ replica_username }}", password: "{{ replica_password }}", flags: REPLICATION,LOGIN}
+        - { name: "{{ barman_username }}", password: "{{ barman_password }}", flags: SUPERUSER}
+        - { name: "{{ barman_stream }}", password: "{{ barman_stream_password }}", flags: SUPERUSER}
+        
+    - name: Remove demo databse if exists
+      postgresql_db:
+        name: demo
+        state: absent
+      become: true
+      become_user: postgres
+   
+    - name: Get demo database
+      get_url:
+        url: https://edu.postgrespro.ru/demo_small.zip
+        dest: /var/tmp
+#        remote_src: yes
+
+#    - name: Load demo database
+#      become: true 
+#      become_user: postgres
+#      shell: psql -f /var/tmp/demo_small.sql
+
+    - name: Create demo database
+      postgresql_db:
+        name: demo
+        state: present
+      become: true
+      become_user: postgres
+
+    - name: Restore database 
+      postgresql_db:
+        name: demo
+        state: restore
+        target: /var/tmp/demo_small.zip
+      become: true
+      become_user: postgres
+     
   handlers:
     - include: handlers/all.yml
 
