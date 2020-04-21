@@ -28,7 +28,7 @@
         state: present
 
 
-- name:  Init master
+- name:  Config master
   hosts: master
   become: yes
   vars:
@@ -68,7 +68,7 @@
         name: "{{ item.name }}"
         password: "{{ item.password }}"
         role_attr_flags: "{{ item.flags }}"
-      become: true
+      become: yes
       become_user: postgres
       with_items:
         - { name: "{{ replica_username }}", password: "{{ replica_password }}", flags: REPLICATION,LOGIN}
@@ -79,35 +79,68 @@
       postgresql_db:
         name: demo
         state: absent
-      become: true
+      become: yes
       become_user: postgres
    
     - name: Get demo database
-      get_url:
-        url: https://edu.postgrespro.ru/demo_small.zip
+      unarchive:
+        src: https://edu.postgrespro.ru/demo_small.zip
         dest: /var/tmp
-#        remote_src: yes
+        remote_src: yes
 
-#    - name: Load demo database
-#      become: true 
+    - name: Load demo database
+      become: yes 
+      become_user: postgres
+      shell: psql -f /var/tmp/demo_small.sql
+
+#    - name: Create demo database
+#      postgresql_db:
+#        name: demo
+#        state: present
+#      become: yes
 #      become_user: postgres
-#      shell: psql -f /var/tmp/demo_small.sql
 
-    - name: Create demo database
-      postgresql_db:
-        name: demo
-        state: present
-      become: true
-      become_user: postgres
-
-    - name: Restore database 
-      postgresql_db:
-        name: demo
-        state: restore
-        target: /var/tmp/demo_small.zip
-      become: true
-      become_user: postgres
+#    - name: Restore database 
+#      postgresql_db:
+#        name: demo
+#        state: restore
+#        target: /var/tmp/demo_small.sql
+#      become: yes
+#      become_user: postgres
      
   handlers:
     - include: handlers/all.yml
 
+- name:  Config master
+  hosts: slave
+  become: yes
+  vars:
+    postgresql_version: "11"
+    postgresql_service: postgresql-11
+    postgresql_bin_path: "/usr/pgsql-11/bin"
+    postgresql_data_dir: "/var/lib/pgsql/11/data/"
+    postgresql_config_path: "/var/lib/pgsql/11/data"
+    physical_replication_slot: standby_slot
+    replica_username: replica
+    replica_password: Pass@Word@Rep
+    barman_username: barman
+    barman_password: Pass@Word@Bar
+    barman_stream: barman_stream
+    barman_stream_password: Pass@Word@Str
+  
+  tasks:
+    - name: Remove current database
+      become: yes
+      become_user: postgres
+      file:
+        path: "{{ postgresql_data_dir }}"
+        state: absent
+
+    - name: Run pg_basebackup
+      become_user: postgres
+      become: yes
+      shell: /usr/pgsql-11/bin/pg_basebackup -D {{ postgresql_data_dir }} --write-recovery-conf --wal-method=stream --checkpoint=fast --host={{ master_ip }} --user={{ replica_username }} --slot='{{ physical_replication_slot }}'
+      notify: Restart PostgreSQL
+
+  handlers:
+    - include: handlers/all.yml
