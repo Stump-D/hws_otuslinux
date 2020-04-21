@@ -31,26 +31,37 @@
 - name:  Config master
   hosts: master
   become: yes
-  vars:
-    postgresql_version: "11"
-    postgresql_service: postgresql-11
-    postgresql_bin_path: "/usr/pgsql-11/bin"
-    postgresql_data_dir: "/var/lib/pgsql/11/data/"
-    postgresql_config_path: "/var/lib/pgsql/11/data"
-    physical_replication_slot: standby_slot
-    replica_username: replica
-    replica_password: Pass@Word@Rep
-    barman_username: barman
-    barman_password: Pass@Word@Bar
-    barman_stream: barman_stream
-    barman_stream_password: Pass@Word@Str
     
   tasks:
     - name: PostgreSQL database init
       command: "{{ postgresql_bin_path }}/postgresql-11-setup initdb"
       args:
         creates: "{{ postgresql_data_dir }}/PG_VERSION"
+    
+    - name: Copy pga_hba.conf on master
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: postgres
+        group: postgres
+        mode: 0600
+      with_items:
+        - { src: 'templates/master/pg_hba.conf.j2', dest: '{{ postgresql_data_dir }}/pg_hba.conf'} 
+        - { src: 'templates/master/postgresql.conf.j2', dest: '{{ postgresql_data_dir }}/postgresql.conf'} 
 
+    - name: Start firewalld
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Accept remote connections to postgres
+      firewalld:
+        service: postgresql
+        permanent: yes
+        state: enabled
+        immediate: yes
+              
     - name: Run PostgreSQL
       systemd:
         name: "{{ postgresql_service }}"
@@ -84,63 +95,36 @@
    
     - name: Get demo database
       unarchive:
-        src: https://edu.postgrespro.ru/demo_small.zip
+#        src: https://edu.postgrespro.ru/demo_small.zip
+        src: demo_small.zip
         dest: /var/tmp
-        remote_src: yes
+#        remote_src: yes
 
     - name: Load demo database
       become: yes 
       become_user: postgres
       shell: psql -f /var/tmp/demo_small.sql
 
-#    - name: Create demo database
-#      postgresql_db:
-#        name: demo
-#        state: present
-#      become: yes
-#      become_user: postgres
-
-#    - name: Restore database 
-#      postgresql_db:
-#        name: demo
-#        state: restore
-#        target: /var/tmp/demo_small.sql
-#      become: yes
-#      become_user: postgres
-     
   handlers:
     - include: handlers/all.yml
 
-- name:  Config master
+- name:  Config slave
   hosts: slave
   become: yes
-  vars:
-    postgresql_version: "11"
-    postgresql_service: postgresql-11
-    postgresql_bin_path: "/usr/pgsql-11/bin"
-    postgresql_data_dir: "/var/lib/pgsql/11/data/"
-    postgresql_config_path: "/var/lib/pgsql/11/data"
-    physical_replication_slot: standby_slot
-    replica_username: replica
-    replica_password: Pass@Word@Rep
-    barman_username: barman
-    barman_password: Pass@Word@Bar
-    barman_stream: barman_stream
-    barman_stream_password: Pass@Word@Str
   
   tasks:
-    - name: Remove current database
-      become: yes
-      become_user: postgres
-      file:
-        path: "{{ postgresql_data_dir }}"
-        state: absent
-
-    - name: Run pg_basebackup
-      become_user: postgres
-      become: yes
-      shell: /usr/pgsql-11/bin/pg_basebackup -D {{ postgresql_data_dir }} --write-recovery-conf --wal-method=stream --checkpoint=fast --host={{ master_ip }} --user={{ replica_username }} --slot='{{ physical_replication_slot }}'
-      notify: Restart PostgreSQL
-
-  handlers:
-    - include: handlers/all.yml
+#    - name: Remove current database
+#      become: yes
+#      become_user: postgres
+#      file:
+#        path: "{{ postgresql_data_dir }}"
+#        state: absent
+#
+#    - name: Run pg_basebackup
+#      become_user: postgres
+#      become: yes
+#      shell: /usr/pgsql-11/bin/pg_basebackup -D {{ postgresql_data_dir }} --write-recovery-conf --wal-method=stream --checkpoint=fast --host={{ master_ip }} --user={{ replica_username }} --slot='{{ physical_replication_slot }}'
+#      notify: Restart PostgreSQL
+#
+# handlers:
+#    - include: handlers/all.yml
