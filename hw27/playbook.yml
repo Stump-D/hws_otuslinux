@@ -4,7 +4,7 @@
   become: yes
   vars:
     postgresql_repo: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-    postgresql_packages:
+    packages:
       - postgresql11
       - postgresql11-server
       - postgresql11-contrib
@@ -24,7 +24,7 @@
 
     - name: Install PostgreSQL packages
       package:
-        name: "{{ postgresql_packages }}"
+        name: "{{ packages }}"
         state: present
 
 
@@ -38,7 +38,7 @@
       args:
         creates: "{{ postgresql_data_dir }}/PG_VERSION"
     
-    - name: Copy pga_hba.conf on master
+    - name: Copy config files on master
       template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
@@ -55,7 +55,7 @@
         state: started
         enabled: yes
 
-    - name: Accept remote connections to postgres
+    - name: Enable remote connections to postgresql service by firewalld
       firewalld:
         service: postgresql
         permanent: yes
@@ -86,7 +86,7 @@
         - { name: "{{ barman_username }}", password: "{{ barman_password }}", flags: SUPERUSER}
         - { name: "{{ barman_stream }}", password: "{{ barman_stream_password }}", flags: SUPERUSER}
         
-    - name: Remove demo databse if exists
+    - name: Remove demo database if exists
       postgresql_db:
         name: demo
         state: absent
@@ -113,18 +113,73 @@
   become: yes
   
   tasks:
-#    - name: Remove current database
-#      become: yes
-#      become_user: postgres
-#      file:
-#        path: "{{ postgresql_data_dir }}"
-#        state: absent
-#
-#    - name: Run pg_basebackup
-#      become_user: postgres
-#      become: yes
-#      shell: /usr/pgsql-11/bin/pg_basebackup -D {{ postgresql_data_dir }} --write-recovery-conf --wal-method=stream --checkpoint=fast --host={{ master_ip }} --user={{ replica_username }} --slot='{{ physical_replication_slot }}'
-#      notify: Restart PostgreSQL
-#
-# handlers:
-#    - include: handlers/all.yml
+    - name: Remove current database
+      become: yes
+      become_user: postgres
+      file:
+        path: "{{ postgresql_data_dir }}"
+        state: absent
+
+    - name: Run pg_basebackup
+      become_user: postgres
+      become: yes
+      shell: /usr/pgsql-11/bin/pg_basebackup -D {{ postgresql_data_dir }} --write-recovery-conf --wal-method=stream --checkpoint=fast --host={{ master_ip }} --user={{ replica_username }} --slot='{{ physical_replication_slot }}'
+      notify: Restart PostgreSQL
+
+    - name: Copy config files on slave
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: postgres
+        group: postgres
+        mode: 0600
+      with_items:
+        - { src: 'templates/slave/pg_hba.conf.j2', dest: '{{ postgresql_data_dir }}/pg_hba.conf'}
+        - { src: 'templates/slave/postgresql.conf.j2', dest: '{{ postgresql_data_dir }}/postgresql.conf'}
+#        - { src: 'templates/slave/recovery.conf.j2', dest: '{{ postgresql_data_dir }}/recovery.conf'}
+      notify: Reload PostgreSQL
+
+  handlers:
+    - include: handlers/all.yml
+
+- name:  Config backup
+  hosts: backup
+  become: yes
+  vars:
+    postgresql_repo: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    packages:
+      - postgresql11
+      - barman
+  
+  tasks:
+    - name: Install epel-release
+      yum:
+        name: epel-release
+        state: present
+
+    - name: Install PostgreSQL repo
+      yum:
+        name: "{{ postgresql_repo }}"
+        state: present
+
+    - name: Get 2ndQuadrant repo
+      get_url:
+        url: https://dl.2ndquadrant.com/default/release/get/11/rpm
+        dest: /vagrant/2ndQuadrant.sh
+        mode: 0755
+    
+    - name: Install 2ndQuadrant repo
+      shell: bash /vagrant/2ndQuadrant.sh
+
+  
+#    - name: Exclude barman from PostgreSQL repo
+#      lineinfile:
+#        path: /etc/yum.repos.d/pgdg-redhat-all.repo
+#        line: exclude=barman*
+#        state: present
+
+    - name: Install packages
+      yum:
+        name: '{{ packages }}'
+        state: present
+  
