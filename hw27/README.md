@@ -181,7 +181,7 @@ Server master:
         archiver errors: OK
 
 ```
-Полезное:
+**Полезное:**
 ```
 cat barman.conf | egrep -v '^;|^$' > barman.conf.j2
 ```
