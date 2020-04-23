@@ -105,7 +105,7 @@ sync_state       | async
 ```
 
 
-5. Проверяем статус бэкапа: 
+5. Проверяем статус работы сервера бэкапа: 
 ```
 [root@backup vagrant]# su barman
 bash-4.2$ barman check master
