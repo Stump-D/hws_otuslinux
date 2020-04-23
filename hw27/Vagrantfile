@@ -46,13 +46,10 @@ Vagrant.configure("2") do |config|
              echo "export LC_CTYPE=en_US.UTF-8" >> /etc/profile.d/lang.sh
              source /etc/profile.d/lang.sh
           SHELL
-          case boxname.to_s
-            when "null"
-               box.vm.provision "ansible" do |ansible|
-                 ansible.playbook = "playbook.yml"
-                 ansible.limit = "all"
-              end
-          end                                                                                  
+#          box.vm.provision "ansible" do |ansible|
+#             ansible.playbook = "playbook.yml"
+#             ansible.limit = "all"
+#          end                                                                                  
           
       end
   end

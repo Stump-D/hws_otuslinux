@@ -13,6 +13,6 @@ replica_username: replica
 replica_password: Pass@Word@Rep
 barman_username: barman
 barman_password: Pass@Word@Bar
-barman_stream: barman_stream
-barman_stream_password: Pass@Word@Str
+streaming_barman: streaming_barman
+streaming_barman_password: Pass@Word@Str
 

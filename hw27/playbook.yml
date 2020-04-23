@@ -1,5 +1,5 @@
 ---
-- name:  Configurate hosts
+- name:  Config pgservers
   hosts: pgservers
   become: yes
   vars:
@@ -27,11 +27,10 @@
         name: "{{ packages }}"
         state: present
 
-
 - name:  Config master
   hosts: master
   become: yes
-    
+
   tasks:
     - name: PostgreSQL database init
       command: "{{ postgresql_bin_path }}/postgresql-11-setup initdb"
@@ -84,7 +83,7 @@
       with_items:
         - { name: "{{ replica_username }}", password: "{{ replica_password }}", flags: REPLICATION,LOGIN}
         - { name: "{{ barman_username }}", password: "{{ barman_password }}", flags: SUPERUSER}
-        - { name: "{{ barman_stream }}", password: "{{ barman_stream_password }}", flags: SUPERUSER}
+        - { name: "{{ streaming_barman }}", password: "{{ streaming_barman_password }}", flags: REPLICATION,LOGIN}
         
     - name: Remove demo database if exists
       postgresql_db:
@@ -95,10 +94,10 @@
    
     - name: Get demo database
       unarchive:
-#        src: https://edu.postgrespro.ru/demo_small.zip
-        src: demo_small.zip
+        src: https://edu.postgrespro.ru/demo_small.zip
+#        src: demo_small.zip
         dest: /var/tmp
-#        remote_src: yes
+        remote_src: yes
 
     - name: Load demo database
       become: yes 
@@ -111,7 +110,7 @@
 - name:  Config slave
   hosts: slave
   become: yes
-  
+
   tasks:
     - name: Remove current database
       become: yes
@@ -136,7 +135,6 @@
       with_items:
         - { src: 'templates/slave/pg_hba.conf.j2', dest: '{{ postgresql_data_dir }}/pg_hba.conf'}
         - { src: 'templates/slave/postgresql.conf.j2', dest: '{{ postgresql_data_dir }}/postgresql.conf'}
-#        - { src: 'templates/slave/recovery.conf.j2', dest: '{{ postgresql_data_dir }}/recovery.conf'}
       notify: Reload PostgreSQL
 
   handlers:
@@ -149,7 +147,10 @@
     postgresql_repo: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
     packages:
       - postgresql11
+#      - postgresql11-server
+#      - postgresql11-contrib
       - barman
+    barman_stream_slot: master
   
   tasks:
     - name: Install epel-release
@@ -171,15 +172,30 @@
     - name: Install 2ndQuadrant repo
       shell: bash /vagrant/2ndQuadrant.sh
 
-  
-#    - name: Exclude barman from PostgreSQL repo
-#      lineinfile:
-#        path: /etc/yum.repos.d/pgdg-redhat-all.repo
-#        line: exclude=barman*
-#        state: present
-
     - name: Install packages
       yum:
         name: '{{ packages }}'
         state: present
-  
+
+    - name: Copy config files on backup
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - { src: 'templates/backup/barman.conf.j2', dest: '/etc/barman.conf'}
+        - { src: 'templates/backup/master.conf.j2', dest: '/etc/barman.d/master.conf'}
+
+    - name: Create replication slot for backup
+      become_user: "{{ barman_username }}"
+      command: barman receive-wal --create-slot "{{ barman_stream_slot }}"
+      ignore_errors: yes
+
+    - name: Verification of WAL archiving configuration
+      become_user: "{{ barman_username }}"
+      shell: |
+        barman switch-wal --force --archive --archive-timeout 60 "{{ barman_stream_slot }}"
+        barman switch-wal --force --archive --archive-timeout 60 "{{ barman_stream_slot }}"
+      ignore_errors: yes
